@@ -1,0 +1,12 @@
+[package]
+name = "rust_sign_verify"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "Phase 0 decision experiment: DEC-001 / DEC-004A Rust Ed25519 sign-verify stub"
+
+[dependencies]
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand = "0.8"
+sha2 = "0.10"
+hex = "0.4"

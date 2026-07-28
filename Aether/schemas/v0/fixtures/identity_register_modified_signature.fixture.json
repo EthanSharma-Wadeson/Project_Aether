@@ -1,0 +1,47 @@
+{
+  "fixture_name": "identity_register_modified_signature",
+  "description": "Signature bytes changed; verification must fail",
+  "expected_verification_result": false,
+  "source_object": {
+    "protocol_version": 1,
+    "schema_version": 1,
+    "operational_public_key_hex": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "permission_root_hex": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+    "metadata_commitment_hex": null
+  },
+  "canonical_cbor_hex": "a57070726f746f636f6c5f76657273696f6e016e736368656d615f76657273696f6e01766f7065726174696f6e616c5f7075626c69635f6b65795820a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a16f7065726d697373696f6e5f726f6f745820b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2736d657461646174615f636f6d6d69746d656e74f6",
+  "signing_preimage_hex": "6165746865723a76303a7369676e3a7631000000000100000000010000116964656e746974792e726567697374657200000000a3a57070726f746f636f6c5f76657273696f6e016e736368656d615f76657273696f6e01766f7065726174696f6e616c5f7075626c69635f6b65795820a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a16f7065726d697373696f6e5f726f6f745820b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2736d657461646174615f636f6d6d69746d656e74f6",
+  "preimage_construction": {
+    "algorithm": "sha256(domain-separated preimage over canonical CBOR body)",
+    "domain_tag_utf8": "aether:v0:sign:v1",
+    "separator_hex": "00",
+    "protocol_version_encoding": "u32be",
+    "schema_version_encoding": "u32be",
+    "message_type_length_encoding": "u16be",
+    "body_length_encoding": "u32be",
+    "body_encoding": "schema-locked CBOR bytes",
+    "layout": [
+      "domain_tag_utf8",
+      "0x00 separator",
+      "protocol_version (u32be)",
+      "0x00 separator",
+      "schema_version (u32be)",
+      "0x00 separator",
+      "message_type_length (u16be)",
+      "message_type_utf8",
+      "0x00 separator",
+      "canonical_cbor_body_length (u32be)",
+      "canonical_cbor_body"
+    ]
+  },
+  "sha256_digest_hex": "00f5a3150d63ff106af270b9def7b5acfe930e73f40d172a10cf745a7d1195fc",
+  "public_key_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+  "signature_hex": "aec7294cddd866533ee22d647f782e21b7a3b54b41ed79d09823e895bacfdc0976aa64cc260001083664922860f16c9b4f09b3d7d1facbf33df8e443622fbd03",
+  "verification_context": {
+    "domain_tag_utf8": "aether:v0:sign:v1",
+    "message_type": "identity.register",
+    "signer_key_id": "operational:0"
+  },
+  "fixture_hash_construction": "sha256(UTF8(\"aether:v0:fixture:v1\") || signing_preimage || public_key || signature || expected_result_byte)",
+  "fixture_hash_hex": "fcd94f3cba7b1d5d51e8c0773007bc294eb10041d5532428ed3effbd3043a640"
+}

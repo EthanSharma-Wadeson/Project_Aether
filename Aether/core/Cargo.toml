@@ -1,0 +1,23 @@
+[package]
+name = "aether-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Aether v0 reference implementation — PROTO-0 identity + capability enforcement"
+
+[dependencies]
+# Approved categories per IMPLEMENTATION_CONSTRAINTS.md §4:
+# Ed25519 (DEC-004A), hashing, narrowly scoped CBOR, hex for fixtures/tests.
+ciborium = "0.2"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+hex = "0.4"
+rand = "0.8"
+sha2 = "0.10"
+
+[lib]
+name = "aether_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "aether-core"
+path = "src/main.rs"

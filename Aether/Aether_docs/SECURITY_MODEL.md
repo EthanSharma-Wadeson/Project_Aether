@@ -1,0 +1,255 @@
+# SECURITY_MODEL.md — Project Aether
+
+## Purpose
+
+Define assets to protect, adversaries, trust assumptions, and mitigations across identity, payments, reputation, privacy, and consensus.
+
+**Status:** Draft — updated after PROTO-0 security review (2026-07-28)
+
+Evidence references:
+
+- [PROTO_0_RESULTS.md](../Project_Phases/phase_1/PROTO_0_RESULTS.md)
+- [PROTO_0_SECURITY_REVIEW.md](../Project_Phases/phase_1/PROTO_0_SECURITY_REVIEW.md)
+
+A passing prototype suite is evidence for specific claims only. It is **not** a global proof that Aether is secure.
+
+---
+
+## Protected Assets
+
+| Asset | Why it matters |
+|-------|----------------|
+| Agent keys | Control of identity actions and funds |
+| Channel state integrity | Theft via stale or forged updates |
+| Bonded value | Direct economic loss |
+| Attestation validity | Wrongful escrow release / reputation poison |
+| Capability envelopes | Unauthorized spend or action scope |
+| Private payloads | Model IP, data, strategy |
+| Protocol liveness | Agents must settle and dispute |
+
+## Adversary Classes
+
+1. **Malicious agent** — cheats counterparties, farms reputation, griefs disputes  
+2. **Compromised agent host** — malware extracts operational keys  
+3. **Sybil operator** — many identities to overwhelm discovery/reputation  
+4. **Colluding cartel** — wash activity, censorship of rivals (if they run infrastructure)  
+5. **Network adversary** — delay, partition, replay  
+6. **Malicious principal** — configures agents to externalize harm while shielding funds  
+7. **Curious counterparty** — extracts private data from overdisclosure  
+
+---
+
+## Signature Semantics (Invariant)
+
+> **A signature proves control of an authorised key. It does not prove that an agent's output is correct, truthful, or safe.**
+
+A valid signature authenticates:
+
+- key control
+- message integrity under a domain-separated signing context
+
+A valid signature does **not** authenticate:
+
+- output correctness
+- task quality
+- policy compliance by itself
+- settlement finality
+- evidence availability
+
+Secondary signatures (including payment-like signatures) must not bypass capability checks.
+
+---
+
+## Validated by PROTO-0
+
+The following identity and capability properties were exercised by the PROTO-0 local deterministic prototype and adversarial suite:
+
+| Area | Evidenced behaviour |
+|------|---------------------|
+| Identity verification | Registration, AgentId derivation, public-key authentication, malformed/invalid rejection |
+| Capability verification | Signed `CapabilityGrant` envelope verification before semantic trust |
+| Delegation narrowing | Child capabilities may reduce authority, never expand it |
+| Revoke / freeze behaviour | Explicit capability revoke, parent-revoke cascade, identity freeze, identity revoke |
+| Stale root rejection | Capabilities bound to prior `root_version` fail current-state authorisation after authorised root update |
+| Signature verification pipeline | Domain-separated preimage, canonical CBOR body, context mismatch fail-closed |
+
+Also evidenced:
+
+- identity alone cannot authorise a simulated economic action
+- capability enforcement occurs before simulated economic authorisation
+- expired capabilities cannot authorise new actions
+
+PROTO-0 does **not** convert these into production network guarantees. It validates the smallest local authority primitive under controlled assumptions below.
+
+---
+
+## Not Yet Validated
+
+The following remain **unvalidated** by PROTO-0 and must not be treated as evidenced:
+
+- payment security
+- payment channels and channel-state machines
+- settlement backends and settlement finality
+- disputes, dispute windows, and slash outcomes
+- distributed revocation propagation
+- reputation systems and anti-wash scoring
+- key rotation hierarchy (root / recovery / operational / channel keys)
+- watchtowers and offline safety
+- privacy selective-disclosure flows
+- multi-party authority and production Merkle permission structures
+
+These belong to PROTO-1+, later phases, or deferred work.
+
+---
+
+## Trust Assumptions (Draft)
+
+### General
+
+- Cryptographic primitives behave as specified  
+- Settlement security inherited from selected backend; layered fault model per [CONSENSUS_AND_SETTLEMENT.md](CONSENSUS_AND_SETTLEMENT.md) §4–5  
+- For BFT verifier committees: fewer than one-third Byzantine (`n ≥ 3f + 1`) where applicable  
+- Agents verify capabilities and proofs; do not trust free-text claims  
+- Off-chain channel safety depends on timely dispute participation or watchtowers  
+- Evidence availability is a separate obligation from integrity commitments — see [CONSENSUS_AND_SETTLEMENT.md](CONSENSUS_AND_SETTLEMENT.md) §10–11  
+- TEEs / ZK systems, if used, carry their own trust/complexity assumptions explicitly  
+
+### PROTO-0 trust assumptions (explicit)
+
+These assumptions were required by the PROTO-0 verifier and remain in force for v0 identity/capability validation until replaced by stronger mechanisms:
+
+1. **Coherent local state** — the verifier’s identity registry, capability store, and revocation map are coherent for the evaluation; missing revoke/root state must fail closed rather than invent authority.
+2. **Trusted logical time input** — expiry uses a caller-supplied logical `now`; PROTO-0 does not secure wall-clock time.
+3. **Current-state validation** — normal authorisation evaluates against the active permission root / `root_version`; historical authority validation is a separate mode not yet defined.
+4. **Subject binding** — the acting agent must be the capability `subject` for action authorisation.
+5. **Canonical CBOR rules** — schema-locked field order is protocol-critical; non-canonical encodings are rejected.
+6. **Single operational key (v0)** — one operational key authorises identity and capability grants until hierarchy/rotation is implemented and validated.
+7. **Local revocation only (v0)** — revocation is not yet distributed; verifiers that lack revoke records may diverge unless state is shared.
+
+---
+
+## Security Properties
+
+| Property | Intent |
+|----------|--------|
+| Authentication | Messages bound to authorized keys |
+| Authorization | Capabilities constrain actions before economic effects |
+| Integrity | Settlements match authorized latest states |
+| Accountability | Fraud attributable and slashable |
+| Availability | Honest parties can eventually finalize |
+| Privacy | Selective disclosure; see PRIVACY_MODEL |
+| Non-repudiation | Signed updates and attestations bind parties |
+
+---
+
+## Capability / Identity Authorization Rules
+
+Normative verification order for capability-gated actions:
+
+1. **Verify signature first** — reconstruct canonical body bytes, verify the enclosing `SignedMessage`, and reject signing-context mismatch.
+2. **Validate semantics second** — only after authentication, evaluate identity status, permission-root binding, capability constraints, and parent chain.
+3. **Fail closed** on:
+   - revoked capability (including revoked parent)
+   - frozen or revoked identity
+   - stale permission root / root-version mismatch
+   - malformed or non-canonical objects
+4. **Children cannot expand authority** — delegated capabilities must remain a subset of parent scope, limits, expiry, counterparties, rate limits, and delegation depth.
+
+Capability checks MUST occur before an externally visible economic action is authorised. Payment signatures alone are insufficient.
+
+---
+
+## Key Risk Mitigations
+
+### Validated or partially present at v0 / PROTO-0
+
+- Capability scopes with low blast radius  
+- Identity freeze / revoke emergency stop  
+- Permission-root version invalidation for stale grants  
+- Fail-closed signature and context checks  
+
+### Later-stage mitigations (not yet validated)
+
+- Hierarchical keys + rapid operational-key rotation  
+- Hardware / enclave custody where principals require it  
+- Distinct root/recovery-holder freeze paths  
+- Avoid single long-lived hot root key on agent hosts  
+- Distributed revocation propagation  
+
+---
+
+## Payment & Dispute Security
+
+- Monotonic sequence numbers; reject stale state  
+- Dispute windows sized to adversary delay assumptions  
+- Watchtowers or principal backups for offline agents  
+- Slash for submitting revoked/fraudulent state  
+- Capability checks prevent “both parties agree to violate principal limits”  
+
+**Status:** design intent only — not validated by PROTO-0.
+
+## Reputation Security
+
+- Evidence rooted in economically consequential events  
+- Anti-wash graph and stake weighting  
+- Cost to reset identity trust  
+- Careful handling of ambiguous faults  
+
+**Status:** not validated by PROTO-0.
+
+## Verification Security
+
+- Fail closed on unknown proof types  
+- Pin proof system versions  
+- Separate “attested by TEE X” from “mathematically proven” in APIs so agents do not confuse assurance levels  
+- Separate “signature verified” from “output correct / safe”
+
+## Consensus / Infrastructure Security
+
+- Minimize MEV relevance of agent micro-updates by keeping them off-chain  
+- Censorship resistance for dispute submissions especially  
+- DA guarantees for evidence blobs needed in disputes  
+
+## Secure Development Practices (Project Norms)
+
+- Threat model before feature design  
+- Prefer simplicity on the hot path  
+- Explicit status of cryptographic assumptions in release notes  
+- No “AI safety theater” substituting for protocol security  
+- Prototype tests evidence specific claims; they do not replace threat modelling or later formal analysis  
+
+## Incident Response (Protocol Level)
+
+- Identity freeze / mass revoke procedures  
+- Channel emergency close  
+- Parameter circuit breakers for fee/bond misconfigurations  
+- Disclosure process for critical vulnerabilities  
+
+---
+
+## Open Questions
+
+### Carried forward
+
+- Watchtower economics and default availability assumptions  
+- Formal verification targets for channel and capability logic  
+- Quantum agility timeline  
+
+### Raised / sharpened by PROTO-0
+
+- How is **revocation distributed** so honest verifiers cannot miss a revoke?
+- What is the authoritative **clock / logical-time source** for expiry?
+- When is **historical authority validation** (non-current root) allowed, and how is it bounded?
+- When does **operational-key rotation / key hierarchy** become mandatory versus optional for v0→v1?
+- How should subject-binding evolve for delegated presentation in payment flows?
+
+---
+
+## Related
+
+- [CONSENSUS_AND_SETTLEMENT.md](CONSENSUS_AND_SETTLEMENT.md)
+- [PRIVACY_MODEL.md](PRIVACY_MODEL.md)
+- [CONSENSUS_DESIGN.md](CONSENSUS_DESIGN.md)
+- [PROTOCOL_DESIGN.md](PROTOCOL_DESIGN.md)
+- `research/cryptography.md`
+- [PROTO_0_SECURITY_REVIEW.md](../Project_Phases/phase_1/PROTO_0_SECURITY_REVIEW.md)

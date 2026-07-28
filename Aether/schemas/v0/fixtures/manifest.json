@@ -1,0 +1,42 @@
+{
+  "schema": "aether:v0:fixtures:manifest:1",
+  "generated_at": "2026-07-28",
+  "fixtures": [
+    {
+      "fixture_name": "identity_register_valid",
+      "path": "identity_register_valid.fixture.json",
+      "expected_verification_result": true,
+      "fixture_hash_hex": "7a6feb0a37e27f92fb90e221f7792941ed8867d13180f952c0ad110cdbab2ab5"
+    },
+    {
+      "fixture_name": "identity_register_modified_message_data",
+      "path": "identity_register_modified_message_data.fixture.json",
+      "expected_verification_result": false,
+      "fixture_hash_hex": "86721f67bdc02e56a7bf0fad28b55a8c6e00abd0a5183e7e4f3442affb4cc44a"
+    },
+    {
+      "fixture_name": "identity_register_modified_domain",
+      "path": "identity_register_modified_domain.fixture.json",
+      "expected_verification_result": false,
+      "fixture_hash_hex": "66c0201d34a7cb129f5c8d58a6da5174b48c2c474d3f45d8722f8307e0ad1c6f"
+    },
+    {
+      "fixture_name": "identity_register_modified_message_type",
+      "path": "identity_register_modified_message_type.fixture.json",
+      "expected_verification_result": false,
+      "fixture_hash_hex": "92ee73ceb9b0451b7029c5ff0c6c5f11c2404c7ccc130e1ca28265fda80bab9b"
+    },
+    {
+      "fixture_name": "identity_register_modified_signature",
+      "path": "identity_register_modified_signature.fixture.json",
+      "expected_verification_result": false,
+      "fixture_hash_hex": "fcd94f3cba7b1d5d51e8c0773007bc294eb10041d5532428ed3effbd3043a640"
+    },
+    {
+      "fixture_name": "identity_register_wrong_public_key",
+      "path": "identity_register_wrong_public_key.fixture.json",
+      "expected_verification_result": false,
+      "fixture_hash_hex": "de3db13fa81ed31d8729ae52f386386924fe6206437b7a3aec486543a4580d24"
+    }
+  ]
+}
