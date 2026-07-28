@@ -4,12 +4,13 @@
 
 Define assets to protect, adversaries, trust assumptions, and mitigations across identity, payments, reputation, privacy, and consensus.
 
-**Status:** Draft — updated after PROTO-0 security review (2026-07-28)
+**Status:** Draft — updated after PROTO-0, PROTO-1, and PROTO-2 security reviews (2026-07-28)
 
 Evidence references:
 
 - [PROTO_0_RESULTS.md](../Project_Phases/phase_1/PROTO_0_RESULTS.md)
 - [PROTO_0_SECURITY_REVIEW.md](../Project_Phases/phase_1/PROTO_0_SECURITY_REVIEW.md)
+- [PROTO_1_RESULTS.md](../Project_Phases/phase_1/PROTO_1_RESULTS.md)
 
 A passing prototype suite is evidence for specific claims only. It is **not** a global proof that Aether is secure.
 
@@ -83,22 +84,86 @@ PROTO-0 does **not** convert these into production network guarantees. It valida
 
 ---
 
+## Validated by PROTO-1 (local simulator)
+
+The following bilateral channel properties were exercised by the PROTO-1 local deterministic simulator and adversarial suite (post-remediation):
+
+| Area | Evidenced behaviour |
+|------|---------------------|
+| Dual-signed transitions | Open, activate, update, close, and abort require both party signatures over identical canonical bodies |
+| Commitment-chain updates | Normal `apply_update` enforces `previous_state_commitment` continuity and `sequence = previous + 1` |
+| Commitment-chain disputes | Dispute raise requires a direct chain extension; resolution only admits candidates that chain from the applied baseline |
+| Replay / stale rejection | Stale, skipped, and replayed updates rejected on the apply path; orphaned high-sequence dispute evidence ignored |
+| PROTO-0 integration on channel ops | Identity status + capability grants required before channel transitions (except see terminal trust boundaries) |
+| Soft vs hard finality | `soft_local_agreement` distinct from `hard_settlement_placeholder` (always false in PROTO-1) |
+| Terminal operation auth | `finalize_close` requires both parties' `channel.close` capability and elapsed dispute window; `resolve_dispute` requires participant `channel.dispute` capability |
+| Store integrity | `ChannelStore` does not expose direct mutable access; state changes go through transition functions |
+
+PROTO-1 **does not** convert these into production network, settlement, or distributed dispute guarantees.
+
+### PROTO-1 terminal-operation trust boundaries
+
+| Operation | Auth required | Notes |
+|-----------|---------------|-------|
+| `open_channel` / `activate_channel` / `apply_update` / `begin_close` / `abort_open` | Dual signatures + both parties' capability grants + PROTO-0 checks | Normative hot path |
+| `raise_dispute` | Dual-signed evidence + raiser `channel.dispute` + direct chain extension | Evidence must be `sequence = applied + 1` |
+| `finalize_close` | Both parties' `channel.close` + `now >= dispute_deadline` | Cooperative terminal step after `begin_close` |
+| `resolve_dispute` | Resolver `channel.dispute` + participant membership | Selects highest **chained** dual-signed state among candidates |
+| `ReceiptV0` | Not independently verified | Audit copy of signatures from accepted transitions; not a standalone proof object |
+
+---
+
+## Validated by PROTO-2 (local simulator)
+
+The following escrow and receipt properties were exercised by the PROTO-2 local deterministic simulator and adversarial suite:
+
+| Area | Evidenced behaviour |
+|------|---------------------|
+| Dual-signed terms | Escrow creation requires both payer and provider signatures over identical canonical `EscrowTermsV0` |
+| Provider-signed receipts | `SettlementReceiptV0` verified independently via PROTO-0 signing pipeline; distinct from PROTO-1 `ReceiptV0` |
+| Receipt binding | `escrow_id`, `terms_version`, monotonic `receipt_nonce`; replay rejected |
+| PROTO-0 integration | Every economic operation requires capability grant before escrow transition rules |
+| Value conservation | Checked arithmetic; no double release/refund; fee within reserved budget |
+| Timeout paths | `fund_before`, `receipt_before`, post-receipt dispute window enforced with logical `now` |
+| Dispute resolution | Trusted-local deterministic rule: valid receipt → release; else refund |
+| PROTO-1 isolation | Separate `EscrowStore`; `ChannelStore` unchanged by escrow operations |
+| Economic finality | `EconomicFinalityViewV0.finalized` on terminal status; `hard_settlement_placeholder` always false |
+
+PROTO-2 **does not** convert these into production escrow safety, real-money custody, or blockchain finality.
+
+### PROTO-2 trust boundaries
+
+| Operation | Auth required | Notes |
+|-----------|---------------|-------|
+| `create_escrow` | Dual-signed terms + both parties' `escrow.create` | No unilateral terms |
+| `fund_escrow` | Payer-signed funding + `escrow.fund` + simulated balance | No real-money transfer |
+| `submit_receipt` | Provider signature + `escrow.submit_receipt` | Proves bounded claim only, not correctness |
+| `release_escrow` | Either party `escrow.release` + elapsed dispute window + bound receipt | Not automatic on receipt alone |
+| `refund_escrow` | Payer `escrow.refund` (cooperative or post-expiry) | Provider cannot self-refund |
+| `resolve_dispute` | Resolver `escrow.resolve` | Local trusted function, not distributed arbitration |
+| `SettlementReceiptV0` | Independently verified provider signature | Does not prove output truth or usefulness |
+
+---
+
 ## Not Yet Validated
 
-The following remain **unvalidated** by PROTO-0 and must not be treated as evidenced:
+The following remain **unvalidated** and must not be treated as evidenced:
 
-- payment security
-- payment channels and channel-state machines
-- settlement backends and settlement finality
-- disputes, dispute windows, and slash outcomes
+- payment security on real settlement backends
+- settlement finality and on-chain enforcement
 - distributed revocation propagation
+- watchtowers, offline safety, and slash economics
 - reputation systems and anti-wash scoring
 - key rotation hierarchy (root / recovery / operational / channel keys)
-- watchtowers and offline safety
 - privacy selective-disclosure flows
 - multi-party authority and production Merkle permission structures
+- network adversary resistance (delay, partition, replay across peers)
+- production dispute adjudication beyond local in-memory resolution
 
-These belong to PROTO-1+, later phases, or deferred work.
+Partially exercised locally but **not** production-validated:
+
+- payment channels and channel-state machines (PROTO-1 simulator only)
+- disputes and dispute windows (local logical-time enforcement only; no distributed slash outcomes)
 
 ---
 
@@ -161,12 +226,14 @@ Capability checks MUST occur before an externally visible economic action is aut
 
 ## Key Risk Mitigations
 
-### Validated or partially present at v0 / PROTO-0
+### Validated or partially present at v0 / PROTO-0 / PROTO-1
 
 - Capability scopes with low blast radius  
 - Identity freeze / revoke emergency stop  
 - Permission-root version invalidation for stale grants  
 - Fail-closed signature and context checks  
+- Local bilateral channel dual-signature enforcement (PROTO-1)  
+- Commitment-chain dispute filtering (PROTO-1 remediation)  
 
 ### Later-stage mitigations (not yet validated)
 
@@ -180,13 +247,14 @@ Capability checks MUST occur before an externally visible economic action is aut
 
 ## Payment & Dispute Security
 
-- Monotonic sequence numbers; reject stale state  
-- Dispute windows sized to adversary delay assumptions  
-- Watchtowers or principal backups for offline agents  
-- Slash for submitting revoked/fraudulent state  
-- Capability checks prevent “both parties agree to violate principal limits”  
+- Monotonic sequence numbers; reject stale state on the apply path
+- Dispute evidence must form a valid commitment chain from the applied baseline (PROTO-1 remediation)
+- Dispute windows enforced on cooperative `finalize_close` via caller-supplied logical `now`
+- Watchtowers or principal backups for offline agents
+- Slash for submitting revoked/fraudulent state
+- Capability checks prevent “both parties agree to violate principal limits”
 
-**Status:** design intent only — not validated by PROTO-0.
+**Status:** local simulator behaviour evidenced by PROTO-1; distributed/production dispute safety remains design intent only.
 
 ## Reputation Security
 

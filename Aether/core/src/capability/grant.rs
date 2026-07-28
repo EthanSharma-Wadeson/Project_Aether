@@ -2,8 +2,10 @@
 
 use ed25519_dalek::SigningKey;
 
-use crate::capability::model::{CapabilityRecord, CapabilityStore, CapabilityV0, MSG_CAPABILITY_GRANT};
 use crate::capability::delegation::{is_subset_actions, narrows_constraints};
+use crate::capability::model::{
+    CapabilityRecord, CapabilityStore, CapabilityV0, MSG_CAPABILITY_GRANT,
+};
 use crate::crypto::signing::{sign_body, DOMAIN_TAG};
 use crate::crypto::verify::{verify_signed_message, SignedMessage};
 use crate::error::{Error, Result};

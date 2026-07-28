@@ -76,7 +76,11 @@ impl IdentityRegistry {
         Ok(agent_id)
     }
 
-    pub fn register_bundle(&mut self, bundle: &IdentityBundle, registered_at: u64) -> Result<AgentId> {
+    pub fn register_bundle(
+        &mut self,
+        bundle: &IdentityBundle,
+        registered_at: u64,
+    ) -> Result<AgentId> {
         let message = bundle.sign_register()?;
         self.register(
             &message,
@@ -87,13 +91,19 @@ impl IdentityRegistry {
     }
 
     pub fn freeze(&mut self, agent_id: &str) -> Result<()> {
-        let entry = self.entries.get_mut(agent_id).ok_or(Error::IdentityNotFound)?;
+        let entry = self
+            .entries
+            .get_mut(agent_id)
+            .ok_or(Error::IdentityNotFound)?;
         entry.status = AgentStatus::Frozen;
         Ok(())
     }
 
     pub fn revoke_identity(&mut self, agent_id: &str) -> Result<()> {
-        let entry = self.entries.get_mut(agent_id).ok_or(Error::IdentityNotFound)?;
+        let entry = self
+            .entries
+            .get_mut(agent_id)
+            .ok_or(Error::IdentityNotFound)?;
         entry.status = AgentStatus::Revoked;
         Ok(())
     }
@@ -148,7 +158,10 @@ impl IdentityRegistry {
             updated_identity.schema_version,
         )?;
 
-        let entry = self.entries.get_mut(agent_id).ok_or(Error::IdentityNotFound)?;
+        let entry = self
+            .entries
+            .get_mut(agent_id)
+            .ok_or(Error::IdentityNotFound)?;
         entry.identity = updated_identity;
         entry.permission_root_material = new_root;
         entry.root_authority = new_authority;

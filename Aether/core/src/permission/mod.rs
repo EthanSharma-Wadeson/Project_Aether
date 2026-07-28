@@ -2,4 +2,4 @@
 
 pub mod root;
 
-pub use root::{PermissionRootV0, RootAuthorityCapabilityV0, Constraints};
+pub use root::{Constraints, PermissionRootV0, RootAuthorityCapabilityV0};

@@ -97,12 +97,7 @@ fn p0_t012_mismatched_agent_id_rejected() {
     };
     let mut registry = IdentityRegistry::new();
     let err = registry
-        .register(
-            &msg,
-            fake_root,
-            bundle.root_authority.clone(),
-            0,
-        )
+        .register(&msg, fake_root, bundle.root_authority.clone(), 0)
         .unwrap_err();
     assert_eq!(err, aether_core::error::Error::AgentIdMismatch);
 }
@@ -164,7 +159,11 @@ fn p0_t022_monotonic_root_update() {
         .update_permission_root(&agent_id, &bundle.signing_key, new_root, new_authority)
         .unwrap();
     assert_eq!(
-        registry.get(&agent_id).unwrap().permission_root_material.root_version,
+        registry
+            .get(&agent_id)
+            .unwrap()
+            .permission_root_material
+            .root_version,
         2
     );
 }
@@ -223,7 +222,8 @@ fn p0_t012_claimed_id_must_match_derivation() {
     let mut csprng = OsRng;
     let signing_key = SigningKey::generate(&mut csprng);
     let root = root_authority_template(vec!["a".into()], Some(1));
-    let bundle = IdentityBundle::create(signing_key, PROTOCOL_VERSION, SCHEMA_VERSION, root, 1, None)
-        .unwrap();
+    let bundle =
+        IdentityBundle::create(signing_key, PROTOCOL_VERSION, SCHEMA_VERSION, root, 1, None)
+            .unwrap();
     assert!(bundle.identity.derived_agent_id().starts_with("aether:"));
 }

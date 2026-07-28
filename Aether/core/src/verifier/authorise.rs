@@ -1,7 +1,7 @@
 //! `authorise_action` — local deterministic authority check.
 
-use crate::capability::model::{CapabilityStore, CapabilityV0, MSG_CAPABILITY_GRANT};
 use crate::capability::grant::{validate_capability_semantics, CapabilityGrant};
+use crate::capability::model::{CapabilityStore, CapabilityV0, MSG_CAPABILITY_GRANT};
 use crate::crypto::verify::{verify_signed_message, SignedMessage};
 use crate::error::Error;
 use crate::identity::registry::IdentityRegistry;
@@ -38,7 +38,9 @@ fn authorise_action_inner(
     request: &ActionRequest,
     now: u64,
 ) -> Result<(), RejectReason> {
-    let entry = registry.get(agent_id).ok_or(RejectReason::AgentIdMismatch)?;
+    let entry = registry
+        .get(agent_id)
+        .ok_or(RejectReason::AgentIdMismatch)?;
 
     match entry.status {
         AgentStatus::Frozen => return Err(RejectReason::IdentityFrozen),

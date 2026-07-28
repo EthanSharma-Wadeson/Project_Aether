@@ -45,9 +45,7 @@ pub fn as_u64(value: &Value) -> Result<u64> {
     match value {
         Value::Integer(i) => i64::try_from(*i)
             .map_err(|_| Error::MalformedObject("integer out of range"))
-            .and_then(|n| {
-                u64::try_from(n).map_err(|_| Error::MalformedObject("negative integer"))
-            }),
+            .and_then(|n| u64::try_from(n).map_err(|_| Error::MalformedObject("negative integer"))),
         _ => Err(Error::MalformedObject("expected integer")),
     }
 }

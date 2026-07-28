@@ -3,7 +3,8 @@
 use ciborium::value::Value;
 
 use crate::cbor::{
-    as_bytes, as_text, as_u32, as_u64, bytes, encode_value, map, map_get, text, u32_value, u64_value,
+    as_bytes, as_text, as_u32, as_u64, bytes, encode_value, map, map_get, text, u32_value,
+    u64_value,
 };
 use crate::crypto::sha256;
 use crate::error::{Error, Result};

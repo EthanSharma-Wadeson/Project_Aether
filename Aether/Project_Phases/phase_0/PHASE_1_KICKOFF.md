@@ -751,13 +751,15 @@ Reassess before Phase 2 if:
 2. Draft the minimal v0 identity/capability schema clarification. → **Done** in `PROTOCOL_DESIGN.md` / wire group (Phase 0 exit)
 3. Implement and test `PROTO-0`. → **Done:** [PROTO_0_RESULTS.md](../phase_1/PROTO_0_RESULTS.md)
 4. Review security findings. → **Done:** [PROTO_0_SECURITY_REVIEW.md](../phase_1/PROTO_0_SECURITY_REVIEW.md); `SECURITY_MODEL.md` aligned
-5. Implement and test `PROTO-1`. → **Not started** — requires explicit approval
-6. Review channel findings.
-7. Implement and test `PROTO-2`.
-8. Review escrow/receipt findings.
-9. Update experiment evidence and security documentation.
-10. Run the Phase 1 exit review.
-11. Only then consider Phase 2 work.
+5. Implement and test `PROTO-1`. → **Done:** [PROTO_1_RESULTS.md](../phase_1/PROTO_1_RESULTS.md) (101 tests; security remediation applied)
+6. Review channel findings. → **Done:** `SECURITY_MODEL.md` PROTO-1 section; terminal trust boundaries documented
+7. Freeze `PROTO-2` design + acceptance tests. → **Done:** [PROTO_2_DESIGN.md](../phase_1/PROTO_2_DESIGN.md), [PROTO_2_DECISIONS.md](../phase_1/PROTO_2_DECISIONS.md), [PROTO_2_ACCEPTANCE_TESTS.md](../phase_1/PROTO_2_ACCEPTANCE_TESTS.md)
+8. Review escrow/receipt design. → **Done** (design freeze accepted)
+9. Implement and test `PROTO-2`. → **Done:** [PROTO_2_RESULTS.md](../phase_1/PROTO_2_RESULTS.md) (183 tests; PROTO-0/1 regression green)
+10. Review escrow/receipt findings. → **Next**
+11. Update experiment evidence and security documentation.
+12. Run the Phase 1 exit review.
+13. Only then consider Phase 2 work.
 
 ---
 

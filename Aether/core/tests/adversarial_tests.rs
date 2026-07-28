@@ -2,15 +2,13 @@
 
 mod common;
 
-use aether_core::capability::model::{CapabilityStore, CapabilityV0};
 use aether_core::capability::grant::{grant_capability, CapabilityGrant};
+use aether_core::capability::model::{CapabilityStore, CapabilityV0};
 use aether_core::crypto::signing::{sign_body, DOMAIN_TAG};
 use aether_core::crypto::verify::SignedMessage;
 use aether_core::permission::root::{Constraints, PermissionRootV0};
 use aether_core::types::{RateLimit, RejectReason, SubjectRef};
-use aether_core::verifier::authorise::{
-    authorise_action, authorise_with_secondary_signature_only,
-};
+use aether_core::verifier::authorise::{authorise_action, authorise_with_secondary_signature_only};
 use common::*;
 
 #[test]

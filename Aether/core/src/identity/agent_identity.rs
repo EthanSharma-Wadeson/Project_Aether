@@ -58,7 +58,8 @@ impl AgentIdentityV0 {
         };
         let protocol_version = as_u32(map_get(&entries, "protocol_version")?)?;
         let schema_version = as_u32(map_get(&entries, "schema_version")?)?;
-        let operational_public_key = as_bytes(map_get(&entries, "operational_public_key")?)?.to_vec();
+        let operational_public_key =
+            as_bytes(map_get(&entries, "operational_public_key")?)?.to_vec();
         if operational_public_key.len() != 32 {
             return Err(Error::MalformedObject("operational_public_key length"));
         }

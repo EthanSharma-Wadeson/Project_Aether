@@ -20,10 +20,14 @@ Do not use `P0`–`P5` for prototypes — they collide with phase numbers.
 | 2 | Pending | [Aether_docs/roadmap/phase_2.md](../Aether_docs/roadmap/phase_2.md) |
 | 3 | Pending | [Aether_docs/roadmap/phase_3.md](../Aether_docs/roadmap/phase_3.md) |
 
-**Current focus:** PROTO-0 complete; security model aligned. PROTO-1 not started — awaiting explicit approval.
+**Current focus:** PROTO-0, PROTO-1, and PROTO-2 complete (183 tests green). PROTO-3 has not started.
 
 | Resource | Role |
 |----------|------|
+| [phase_1/PROTO_2_RESULTS.md](phase_1/PROTO_2_RESULTS.md) | PROTO-2 implementation test results |
+| [phase_1/PROTO_2_DESIGN.md](phase_1/PROTO_2_DESIGN.md) | PROTO-2 escrow + receipt simulator design |
+| [phase_1/PROTO_2_DECISIONS.md](phase_1/PROTO_2_DECISIONS.md) | PROTO-2 design resolutions |
+| [phase_1/PROTO_2_ACCEPTANCE_TESTS.md](phase_1/PROTO_2_ACCEPTANCE_TESTS.md) | Frozen PROTO-2 acceptance tests |
 | [phase_0/DECISIONS.md](phase_0/DECISIONS.md) | Decision log |
 | [phase_0/V0_WIRE_CRYPTO_GROUP.md](phase_0/V0_WIRE_CRYPTO_GROUP.md) | DEC-003–008 coherent spec |
 | [phase_0/PERMISSION_ROOT_V0.md](phase_0/PERMISSION_ROOT_V0.md) | Minimal provisional permission-root design |

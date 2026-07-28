@@ -1,4 +1,4 @@
-//! PROTO-0 error types.
+//! PROTO-0 / PROTO-1 error types.
 
 use crate::types::RejectReason;
 
@@ -25,6 +25,35 @@ pub enum Error {
     InvalidDelegationDepth,
     UnexpectedAuthorisation,
     Rejected(RejectReason),
+    // PROTO-1 channel
+    ChannelNotFound,
+    ChannelAlreadyExists,
+    InvalidChannelStatus,
+    UnilateralUpdate,
+    SequenceStale,
+    SequenceSkip,
+    StateCommitmentMismatch,
+    BalanceConservation,
+    ParticipantMismatch,
+    UnauthorizedTransition,
+    InvalidClose,
+    InvalidDisputeEvidence,
+    CapabilityDenied,
+    /// Cooperative finalize attempted before dispute window elapsed.
+    DisputeWindowOpen,
+    /// Terminal operation rejected (missing capability or wrong participant).
+    UntrustedTerminalOperation,
+    // PROTO-2 escrow
+    EscrowNotFound,
+    EscrowAlreadyExists,
+    InvalidEscrowStatus,
+    InsufficientBalance,
+    EscrowValueConservation,
+    InvalidReceipt,
+    ReceiptReplay,
+    InvalidEscrowTerms,
+    FeeBudgetExceeded,
+    InvalidEscrowEvidence,
 }
 
 impl std::fmt::Display for Error {

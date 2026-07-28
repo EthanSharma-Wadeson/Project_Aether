@@ -3,7 +3,7 @@ name = "aether-core"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "Aether v0 reference implementation — PROTO-0 identity + capability enforcement"
+description = "Aether v0 reference implementation — PROTO-0 identity/capability + PROTO-1 channel simulator"
 
 [dependencies]
 # Approved categories per IMPLEMENTATION_CONSTRAINTS.md §4:

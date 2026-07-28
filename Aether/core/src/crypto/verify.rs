@@ -21,17 +21,13 @@ pub struct SignedMessage {
 }
 
 pub fn verifying_key_from_bytes(bytes: &[u8]) -> Result<VerifyingKey> {
-    let arr: [u8; 32] = bytes
-        .try_into()
-        .map_err(|_| Error::InvalidPublicKey)?;
+    let arr: [u8; 32] = bytes.try_into().map_err(|_| Error::InvalidPublicKey)?;
     VerifyingKey::from_bytes(&arr).map_err(|_| Error::InvalidPublicKey)
 }
 
 pub fn verify_digest(public_key: &[u8], digest: &[u8; 32], signature: &[u8]) -> Result<()> {
     let vk = verifying_key_from_bytes(public_key)?;
-    let sig_bytes: [u8; 64] = signature
-        .try_into()
-        .map_err(|_| Error::InvalidSignature)?;
+    let sig_bytes: [u8; 64] = signature.try_into().map_err(|_| Error::InvalidSignature)?;
     let sig = Signature::from_bytes(&sig_bytes);
     vk.verify(digest, &sig).map_err(|_| Error::InvalidSignature)
 }

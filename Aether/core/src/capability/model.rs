@@ -4,9 +4,7 @@ use std::collections::HashMap;
 
 use ciborium::value::Value;
 
-use crate::cbor::{
-    as_bytes, as_text, as_u32, bytes, encode_value, map, map_get, text, u32_value,
-};
+use crate::cbor::{as_bytes, as_text, as_u32, bytes, encode_value, map, map_get, text, u32_value};
 use crate::crypto::sha256;
 use crate::error::{Error, Result};
 use crate::permission::root::Constraints;

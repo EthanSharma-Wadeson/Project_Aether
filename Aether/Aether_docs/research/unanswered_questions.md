@@ -25,10 +25,43 @@ These items remain open or provisional for Phase 1 review, but do not block Phas
 
 | Area | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Attestation profile for early receipts | Provisional | Project Lead | deterministic receipt-first for `PROTO-2` |
+| Attestation profile for early receipts | Provisional | Project Lead | deterministic receipt-first for `PROTO-2` — see [PROTO_2_DESIGN.md](../../Project_Phases/phase_1/PROTO_2_DESIGN.md) |
 | Claim types for non-deterministic outputs | Provisional | Project Lead | out of objective-verification scope for v0 prototypes |
-| In-memory simulator vs backend stub for channels | Provisional | Project Lead | in-process bilateral simulator for `PROTO-1` |
+| In-memory simulator vs backend stub for channels | Provisional | Project Lead | in-process bilateral simulator for `PROTO-1` — see [PROTO_1_DESIGN.md](../../Project_Phases/phase_1/PROTO_1_DESIGN.md) |
 | Settlement backend shortlist / spike timing | Deferred | Project Lead | not part of `PROTO-0`–`PROTO-2` |
+
+### PROTO-1 design questions (resolve or provisional-lock before implementation)
+
+- [x] Signer quorum for channel updates → **Locked: dual signatures to accept** — [PROTO_1_DECISIONS.md](../../Project_Phases/phase_1/PROTO_1_DECISIONS.md) P1-DEC-001
+- [x] Open → Active trigger → **Locked: dual-signed sequence=0 activate** — P1-DEC-002
+- [x] Exact v0 capability action tokens → **Locked:** `channel.open/activate/update/close/dispute` — P1-DEC-007
+- [x] Minimal admissible dispute evidence → **Provisional:** `DisputeEvidenceV0` — P1-DEC-004
+- [x] H1 simulated baseline parameters → **Provisional:** synthetic cost/latency units only — P1-DEC-005
+- [x] Open → Finalized abort without activation → **Locked: allowed with dual-signed abort** — P1-DEC-006
+
+Acceptance tests frozen: [PROTO_1_ACCEPTANCE_TESTS.md](../../Project_Phases/phase_1/PROTO_1_ACCEPTANCE_TESTS.md).
+
+Remaining PROTO-1 risks (not pretend-solved): logical-time integrity, local revocation coherence, mid-channel key rotation, synthetic H1 limits, non-distributed disputes.
+
+### PROTO-2 design questions (resolve or provisional-lock before implementation)
+
+- [x] Escrow state ownership / store model → **Locked: separate `EscrowStore`, no public `get_mut`** — [PROTO_2_DECISIONS.md](../../Project_Phases/phase_1/PROTO_2_DECISIONS.md) P2-DEC-001
+- [x] PROTO-1 integration model → **Locked: Option B separate ledger** — P2-DEC-002
+- [x] Terms agreement quorum → **Locked: dual-signed `EscrowTermsV0`** — P2-DEC-003
+- [x] Settlement receipt signer model → **Locked: provider only** — P2-DEC-004
+- [x] Receipt-to-escrow binding → **Locked: escrow_id + terms_version + nonce** — P2-DEC-005
+- [x] Release authority → **Provisional: either party after dispute window** — P2-DEC-006
+- [x] Refund authority → **Locked** — P2-DEC-007
+- [x] Timeout semantics → **Locked: logical `now` deadlines** — P2-DEC-008
+- [x] Dispute resolver trust → **Provisional: local authorised participant** — P2-DEC-009
+- [x] Escrow capability tokens → **Locked: `escrow.*` namespace** — P2-DEC-010
+- [x] Economic finality definition → **Locked: simulator terminal only** — P2-DEC-011
+- [x] Fee-budget model → **Provisional: quote/reserve/consume** — P2-DEC-012
+- [x] H4/H5 prototype success criteria → **Provisional** — P2-DEC-013/014
+
+Acceptance tests frozen: [PROTO_2_ACCEPTANCE_TESTS.md](../../Project_Phases/phase_1/PROTO_2_ACCEPTANCE_TESTS.md).
+
+PROTO-2 implementation **not started** — awaiting design review and explicit approval.
 
 ## Consensus & Settlement
 

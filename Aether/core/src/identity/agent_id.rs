@@ -33,6 +33,9 @@ mod tests {
 
     #[test]
     fn derivation_changes_with_key() {
-        assert_ne!(derive_agent_id(1, &[1u8; 32]), derive_agent_id(1, &[2u8; 32]));
+        assert_ne!(
+            derive_agent_id(1, &[1u8; 32]),
+            derive_agent_id(1, &[2u8; 32])
+        );
     }
 }
