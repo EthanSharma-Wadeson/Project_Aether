@@ -16,18 +16,20 @@ Do not use `P0`–`P5` for prototypes — they collide with phase numbers.
 | Phase | Status | Context |
 |-------|--------|---------|
 | **0** | Closed | [phase_0/CONTEXT.md](phase_0/CONTEXT.md) — Pre-implementation readiness |
-| 1 | Active | [Aether_docs/roadmap/phase_1.md](../Aether_docs/roadmap/phase_1.md) |
-| 2 | Pending | [Aether_docs/roadmap/phase_2.md](../Aether_docs/roadmap/phase_2.md) |
+| **1** | Closed | [phase_1/README.md](phase_1/README.md) — PROTO-0/1/2 primitives |
+| **2** | Active | [phase_2/README.md](phase_2/README.md) — Mainframe architecture (design gate) |
 | 3 | Pending | [Aether_docs/roadmap/phase_3.md](../Aether_docs/roadmap/phase_3.md) |
 
-**Current focus:** PROTO-0, PROTO-1, and PROTO-2 complete (183 tests green). PROTO-3 has not started.
+**Current focus:** Phase 2 — PROTO-4 design complete, acceptance tests **frozen**; implementation not started.
 
 | Resource | Role |
 |----------|------|
-| [phase_1/PROTO_2_RESULTS.md](phase_1/PROTO_2_RESULTS.md) | PROTO-2 implementation test results |
-| [phase_1/PROTO_2_DESIGN.md](phase_1/PROTO_2_DESIGN.md) | PROTO-2 escrow + receipt simulator design |
-| [phase_1/PROTO_2_DECISIONS.md](phase_1/PROTO_2_DECISIONS.md) | PROTO-2 design resolutions |
-| [phase_1/PROTO_2_ACCEPTANCE_TESTS.md](phase_1/PROTO_2_ACCEPTANCE_TESTS.md) | Frozen PROTO-2 acceptance tests |
+| [phase_2/PROTO_4_ACCEPTANCE_TESTS.md](phase_2/PROTO_4_ACCEPTANCE_TESTS.md) | Frozen PROTO-4 acceptance tests |
+| [phase_2/PROTO_4_DESIGN.md](phase_2/PROTO_4_DESIGN.md) | Settlement binding design |
+| [phase_2/PROTO_4_DECISIONS.md](phase_2/PROTO_4_DECISIONS.md) | PROTO-4 decisions |
+| [phase_2/PROTO_NET_0_RESULTS.md](phase_2/PROTO_NET_0_RESULTS.md) | PROTO-NET-0 transport foundation results |
+| [phase_2/PHASE_2_WEDGE_DECISION.md](phase_2/PHASE_2_WEDGE_DECISION.md) | Enterprise spend-control wedge |
+| [phase_2/MAINFRAME_ARCHITECTURE.md](phase_2/MAINFRAME_ARCHITECTURE.md) | Protocol stack map + missing primitives |
 | [phase_0/DECISIONS.md](phase_0/DECISIONS.md) | Decision log |
 | [phase_0/V0_WIRE_CRYPTO_GROUP.md](phase_0/V0_WIRE_CRYPTO_GROUP.md) | DEC-003–008 coherent spec |
 | [phase_0/PERMISSION_ROOT_V0.md](phase_0/PERMISSION_ROOT_V0.md) | Minimal provisional permission-root design |

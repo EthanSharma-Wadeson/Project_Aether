@@ -54,6 +54,31 @@ pub enum Error {
     InvalidEscrowTerms,
     FeeBudgetExceeded,
     InvalidEscrowEvidence,
+    // PROTO-NET-0 transport
+    AgentNotInDirectory,
+    SessionNotFound,
+    SessionAlreadyExists,
+    InvalidSessionStatus,
+    UnsupportedProtocolVersion,
+    MessageReplay,
+    DuplicateMessageId,
+    EnvelopeReceiverMismatch,
+    PayloadCommitmentMismatch,
+    SessionIdentityMismatch,
+    SessionExpired,
+    UnknownNetworkAgent,
+    // PROTO-4 settlement
+    SettlementNotFound,
+    SettlementAlreadyExists,
+    InvalidSettlementStatus,
+    AccountBindingNotFound,
+    AccountBindingMismatch,
+    DuplicateSettlement,
+    InvalidSettlementEvidence,
+    SettlementProviderMismatch,
+    SettlementAmountMismatch,
+    AdapterFailure,
+    SettlementConflict,
 }
 
 impl std::fmt::Display for Error {

@@ -61,7 +61,33 @@ Remaining PROTO-1 risks (not pretend-solved): logical-time integrity, local revo
 
 Acceptance tests frozen: [PROTO_2_ACCEPTANCE_TESTS.md](../../Project_Phases/phase_1/PROTO_2_ACCEPTANCE_TESTS.md).
 
-PROTO-2 implementation **not started** — awaiting design review and explicit approval.
+PROTO-2 implementation **complete** — see [PROTO_2_RESULTS.md](../../Project_Phases/phase_1/PROTO_2_RESULTS.md) (183 tests green).
+
+## Phase 2 Architecture Gate Ownership
+
+These items are open for mainframe design review. See [Project_Phases/phase_2/](../../Project_Phases/phase_2/).
+
+| Area | Status | Owner | Reference |
+|------|--------|-------|-----------|
+| Agent discovery mechanism | Open | Project Lead | DEC-P2-001 |
+| Network trust model | Open | Project Lead | DEC-P2-002 |
+| Settlement philosophy (first adapter) | Open | Project Lead | DEC-P2-003 |
+| Reputation architecture | Provisional | Project Lead | DEC-P2-004 |
+| Permission scaling (Merkle roots) | Provisional | Project Lead | DEC-P2-005 |
+| First networked prototype selection | Open | Project Lead | DEC-P2-006 |
+| Revocation propagation | Open | Project Lead | DEC-P2-008 |
+| Business wedge / design partner | Open | Project Lead | BUSINESS_ALIGNMENT.md |
+
+### Phase 2 architecture questions
+
+- [ ] What transport/session primitives are required before networked PROTO-1? → **Designed: MP-01..03** — [MAINFRAME_ARCHITECTURE.md](../../Project_Phases/phase_2/MAINFRAME_ARCHITECTURE.md)
+- [ ] Is discovery protocol or application layer? → **Provisional: protocol primitive, marketplace is app** — DEC-P2-010
+- [ ] When do Merkle permission roots become mandatory? → **Provisional: before public federation** — DEC-P2-005
+- [ ] What is the first settlement backend for PROTO-4 spike? → **Provisional: enterprise.ledger.v0 stub** — [PROTO_4_DECISIONS.md](../../Project_Phases/phase_2/PROTO_4_DECISIONS.md) P4-DEC-003
+- [ ] Hub-and-spoke vs mesh default? → **Open** — DEC-P2-007
+- [ ] Max stale-grant window after revoke? → **Open** — DEC-P2-008
+- [ ] Enterprise vs marketplace vs ecosystem first wedge? → **Decided: Enterprise Agent Spend Control** — [PHASE_2_WEDGE_DECISION.md](../../Project_Phases/phase_2/PHASE_2_WEDGE_DECISION.md)
+- [ ] When may hard_settlement_placeholder become true? → **Locked design: only after external Confirmed + verified binding** — PROTO_4_DESIGN.md / P4-DEC-004
 
 ## Consensus & Settlement
 
@@ -119,9 +145,10 @@ PROTO-2 implementation **not started** — awaiting design review and explicit a
 
 ## Product / Scope Boundaries
 
-- [ ] First vertical for end-to-end prototype (which agent market)?
-- [ ] Discovery/directory: protocol service or application layer only?
-- [ ] Governance surface for parameters in phase 1?
+- [ ] First vertical for end-to-end prototype (which agent market)? → **Under review** — [BUSINESS_ALIGNMENT.md](../../Project_Phases/phase_2/BUSINESS_ALIGNMENT.md)
+- [ ] Discovery/directory: protocol service or application layer only? → **Provisional: protocol primitive** — DEC-P2-010
+- [ ] Governance surface for parameters in phase 1? → **Deferred to Phase 2 governance layer** — MAINFRAME_ARCHITECTURE.md §Layer 6
+- [ ] First networked prototype: transport vs settlement? → **Open** — DEC-P2-006
 
 ## Decision Log
 
@@ -136,6 +163,9 @@ PROTO-2 implementation **not started** — awaiting design review and explicit a
 | 2026-07-28 | AgentId derivation (v0)? | Provisional: SHA-256 over stable material (schema_version + operational_public_key); excludes permission_root | V0_WIRE_CRYPTO_GROUP.md |
 | 2026-07-28 | Signature primitive (v0)? | Provisional: Ed25519 (ed25519-dalek); signed-byte rules in DEC-004B now fixture-backed in Rust and Python, but group remains provisional | V0_WIRE_CRYPTO_GROUP.md |
 | 2026-07-28 | Capability revocation (v0)? | Provisional: expiry + CapabilityRevoke + identity freeze/revoke | V0_WIRE_CRYPTO_GROUP.md |
+| 2026-07-28 | Phase 2 begins? | Mainframe architecture gate; design only, no implementation | Project_Phases/phase_2/ |
+| 2026-07-28 | Discovery layer boundary? | Provisional: `AgentDirectoryV0` is protocol; marketplace is app | DEC-P2-010 |
+| 2026-07-28 | Reputation model for PROTO-3? | Provisional: indexer-derived from signed events with evidence refs | DEC-P2-004 |
 
 ## Links
 

@@ -4,13 +4,15 @@
 
 Define assets to protect, adversaries, trust assumptions, and mitigations across identity, payments, reputation, privacy, and consensus.
 
-**Status:** Draft — updated after PROTO-0, PROTO-1, and PROTO-2 security reviews (2026-07-28)
+**Status:** Draft — updated after PROTO-0, PROTO-1, PROTO-2, PROTO-NET-0, and PROTO-4 (2026-07-28)
 
 Evidence references:
 
 - [PROTO_0_RESULTS.md](../Project_Phases/phase_1/PROTO_0_RESULTS.md)
 - [PROTO_0_SECURITY_REVIEW.md](../Project_Phases/phase_1/PROTO_0_SECURITY_REVIEW.md)
 - [PROTO_1_RESULTS.md](../Project_Phases/phase_1/PROTO_1_RESULTS.md)
+- [PROTO_NET_0_RESULTS.md](../Project_Phases/phase_2/PROTO_NET_0_RESULTS.md)
+- [PROTO_NET_0_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_NET_0_SECURITY_REVIEW.md)
 
 A passing prototype suite is evidence for specific claims only. It is **not** a global proof that Aether is secure.
 
@@ -145,11 +147,86 @@ PROTO-2 **does not** convert these into production escrow safety, real-money cus
 
 ---
 
+## Validated by PROTO-NET-0 (local transport simulation)
+
+The following authenticated-messaging properties were exercised by the PROTO-NET-0 local deterministic simulator and adversarial suite (see [PROTO_NET_0_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_NET_0_SECURITY_REVIEW.md)):
+
+| Area | Evidenced behaviour |
+|------|---------------------|
+| Agent authentication | Hello and envelope signatures verified under PROTO-0 operational keys; unknown / inactive identities rejected |
+| Dual-party session establishment | Both `net.hello` and `net.hello.accept` required; unilateral establishment rejected |
+| Deterministic session IDs | Same `session_id` derived independently on both agent stores |
+| Envelope authenticity | Tampered fields and forged signatures fail closed |
+| Replay resistance (local) | Hello nonce tracking + per-session `message_id` rejection |
+| Receiver binding | Wrong `expected_receiver` rejected |
+| Payload commitment | Delivered bytes must match signed `payload_commitment` |
+| Carrier boundary | Network does not call `authorise_action` and does not mutate channel/escrow state |
+| Signature ≠ correctness | Envelope proves sender key control only; not payload truth or economic authorisation |
+
+PROTO-NET-0 **does not** evidence: real network security, encrypted transport, distributed discovery, partition tolerance, or key-compromise recovery.
+
+### PROTO-NET-0 trust boundaries
+
+| Operation | Auth required | Notes |
+|-----------|---------------|-------|
+| Directory register | Active PROTO-0 identity | Local map only; no Sybil cost |
+| `initiate_hello` / `accept_hello` / `complete_hello` | Signed hello(s) + Active identities | Dual authentication for Established |
+| `deliver_envelope` | Sender signature + Active identities + Established session | Carrier only — not economic authorisation |
+| Envelope payload | Integrity via commitment | Consuming protocol layers must still enforce PROTO-0/1/2 rules |
+
+---
+
+## Validated by PROTO-4 (local settlement binding)
+
+The following settlement-binding properties were exercised by the PROTO-4 local deterministic prototype and adversarial suite (see [PROTO_4_RESULTS.md](../Project_Phases/phase_2/PROTO_4_RESULTS.md), [PROTO_4_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_4_SECURITY_REVIEW.md)):
+
+| Area | Evidenced behaviour |
+|------|---------------------|
+| Authority split | Adapter evidence cannot overwrite PROTO-2 escrow status or conservation |
+| Capability gate | `settlement.bind` / `settle` / `query` / `cancel` required before mutations and adapter side effects |
+| Soft ≠ hard finality | `EconomicFinalityViewV0.finalized` distinct from `hard_settlement_placeholder` |
+| Hard flag on intended path | `finalize_settlement` requires Confirmed binding, Confirmed caller report, destination check, **and** fresh adapter `Confirmed` query |
+| Fake confirmation | Missing/wrong mock proof token fails closed; hard flag remains false |
+| Duplicate / replay | Correlation idempotency; cross-binding external-ref replay rejected |
+| Conflict handling | Post-confirm adapter reversal + query → `DisputedExternal` + hard flag cleared |
+| NET isolation | Transport session/envelope alone does not authorise settlement |
+| Hard API exposure closed | `promote_verified_hard_settlement` is crate-private; no public hard-promotion export (P4-SEC-R01) |
+| Stale finalize blocked | Cached Confirmed report after adapter reverse cannot finalize (P4-SEC-R02) |
+
+### Validated by PROTO-4 Remediation
+
+- Hard finality cannot be promoted without the validated settlement finalization path
+- Stale adapter evidence cannot create hard finality
+- External settlement evidence remains separate from Aether protocol truth
+- Adapter responses remain evidence, not authority
+
+PROTO-4 **does not** evidence: production banking security, legal settlement finality, or honesty of a compromised live adapter.
+
+### PROTO-4 trust boundaries
+
+| Operation | Auth required | Notes |
+|-----------|---------------|-------|
+| Account bind | `settlement.bind` + Active identity | External account ref is opaque; not KYC proof |
+| Settle request / submit / finalize | `settlement.settle` + Active identity | Escrow must be terminal with matching outcome; finalize re-queries adapter |
+| Query | `settlement.query` | May refresh settlement status; must not mutate escrow economics |
+| Cancel | `settlement.cancel` | Only before Confirmed |
+| Adapter response | Structured evidence + proof token for Confirmed | Provider is evidence source only |
+
+### Hard finality limitations
+
+- `hard_settlement_placeholder` is a **protocol view bit**, not legal/payment finality
+- Promotion is only via crate-private `promote_verified_hard_settlement` from `finalize_settlement`
+- Finalize requires fresh live adapter `Confirmed` attestation in addition to a valid caller report
+- Adapter confirmation ≠ banking finality; signature ≠ correctness
+- Still assumes trusted local mock adapter and in-process host for store handles
+
+---
+
 ## Not Yet Validated
 
 The following remain **unvalidated** and must not be treated as evidenced:
 
-- payment security on real settlement backends
+- payment security on real settlement backends (PROTO-4 proves binding to a **mock** ledger only)
 - settlement finality and on-chain enforcement
 - distributed revocation propagation
 - watchtowers, offline safety, and slash economics
@@ -164,6 +241,7 @@ Partially exercised locally but **not** production-validated:
 
 - payment channels and channel-state machines (PROTO-1 simulator only)
 - disputes and dispute windows (local logical-time enforcement only; no distributed slash outcomes)
+- authenticated agent messaging / sessions (PROTO-NET-0 local simulator only; no real sockets or encryption)
 
 ---
 

@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use crate::error::{Error, Result};
 use crate::escrow::fee::{FeeLedgerEntryV0, FeeQuoteV0};
 use crate::escrow::receipt::SettlementReceiptV0;
 use crate::escrow::state::EscrowV0;
@@ -34,4 +35,40 @@ impl EscrowStore {
     pub(crate) fn insert_record(&mut self, escrow_id: [u8; 32], record: EscrowRecord) {
         self.escrows.insert(escrow_id, record);
     }
+}
+
+/// PROTO-4: promote hard settlement after verified finalize only.
+///
+/// Crate-private — must not be callable by external crates. Only
+/// `settlement::finalize_settlement` may set hard=`true`.
+pub(crate) fn promote_verified_hard_settlement(
+    store: &mut EscrowStore,
+    escrow_id: &[u8; 32],
+) -> Result<EscrowV0> {
+    set_hard_settlement_flag_inner(store, escrow_id, true)
+}
+
+/// PROTO-4: clear hard settlement on dispute / provider conflict.
+///
+/// Crate-private — dispute and query conflict paths may clear the flag.
+pub(crate) fn clear_hard_settlement_flag(
+    store: &mut EscrowStore,
+    escrow_id: &[u8; 32],
+) -> Result<EscrowV0> {
+    set_hard_settlement_flag_inner(store, escrow_id, false)
+}
+
+fn set_hard_settlement_flag_inner(
+    store: &mut EscrowStore,
+    escrow_id: &[u8; 32],
+    hard: bool,
+) -> Result<EscrowV0> {
+    let mut record = store.get(escrow_id).ok_or(Error::EscrowNotFound)?.clone();
+    if !record.escrow.status.is_terminal() {
+        return Err(Error::InvalidEscrowStatus);
+    }
+    record.escrow.finality.hard_settlement_placeholder = hard;
+    let escrow = record.escrow.clone();
+    store.insert_record(*escrow_id, record);
+    Ok(escrow)
 }

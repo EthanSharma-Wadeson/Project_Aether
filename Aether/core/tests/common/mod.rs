@@ -30,7 +30,7 @@ pub fn root_authority_template(
             asset: Some("AETHER_TEST".into()),
             counterparties: None,
             rate_limit: Some(RateLimit {
-                max_ops: 10,
+                max_ops: 100,
                 window_seconds: 60,
             }),
             valid_after: Some(0),
@@ -73,7 +73,7 @@ pub fn direct_capability(
             asset: Some("AETHER_TEST".into()),
             counterparties: None,
             rate_limit: Some(RateLimit {
-                max_ops: 5,
+                max_ops: 100,
                 window_seconds: 60,
             }),
             valid_after: Some(0),
@@ -459,4 +459,367 @@ pub fn happy_path_through_release(pair: &mut EscrowPair, principal: u64, max_fee
         .unwrap();
     release_escrow_ready(pair, escrow_id, deadline);
     escrow_id
+}
+
+pub fn happy_path_through_refund(pair: &mut EscrowPair, principal: u64, max_fee: u64) -> [u8; 32] {
+    let fund_before = 100;
+    let receipt_before = 500;
+    let dispute_window = 100;
+    let (_terms, escrow_id) = create_escrow_ready(
+        pair,
+        principal,
+        max_fee,
+        fund_before,
+        receipt_before,
+        dispute_window,
+        10,
+    );
+    fund_escrow_ready(pair, escrow_id, 20);
+    refund_escrow_ready(pair, escrow_id, 40);
+    escrow_id
+}
+
+// --- PROTO-4 settlement helpers ---
+
+pub fn settlement_actions() -> Vec<ActionSelector> {
+    vec![
+        "settlement.bind".into(),
+        "settlement.settle".into(),
+        "settlement.query".into(),
+        "settlement.cancel".into(),
+    ]
+}
+
+pub fn escrow_and_settlement_actions() -> Vec<ActionSelector> {
+    let mut actions = escrow_actions();
+    actions.extend(settlement_actions());
+    actions
+}
+
+pub fn grant_settlement_caps(
+    bundle: &IdentityBundle,
+    registry: &IdentityRegistry,
+    store: &mut CapabilityStore,
+    max_spend: Option<u64>,
+) -> CapabilityGrant {
+    let cap = direct_capability(bundle, settlement_actions(), max_spend);
+    grant_and_store(bundle, registry, store, &cap)
+}
+
+pub struct SettlementHarness {
+    pub pair: EscrowPair,
+    pub settlements: aether_core::settlement::SettlementStore,
+    pub adapter: aether_core::settlement::MockSettlementAdapterV0,
+    pub grant_settle_payer: CapabilityGrant,
+    pub grant_settle_provider: CapabilityGrant,
+    pub payer_account: aether_core::settlement::SettlementAccountBindingV0,
+    pub provider_account: aether_core::settlement::SettlementAccountBindingV0,
+}
+
+pub fn setup_settlement_harness(seed: u64) -> SettlementHarness {
+    use aether_core::settlement::{
+        bind_account, new_account_binding, sign_account_binding, PROVIDER_ENTERPRISE_LEDGER_V0,
+    };
+
+    let mut registry = IdentityRegistry::new();
+    let payer = register_agent_seeded(
+        &mut registry,
+        escrow_and_settlement_actions(),
+        Some(10_000),
+        seed,
+    );
+    let provider = register_agent_seeded(
+        &mut registry,
+        escrow_and_settlement_actions(),
+        Some(10_000),
+        seed.wrapping_add(1),
+    );
+    let mut caps = CapabilityStore::new();
+    let grant_payer = grant_and_store(
+        &payer,
+        &registry,
+        &mut caps,
+        &direct_capability(&payer, escrow_and_settlement_actions(), Some(10_000)),
+    );
+    let grant_provider = grant_and_store(
+        &provider,
+        &registry,
+        &mut caps,
+        &direct_capability(&provider, escrow_and_settlement_actions(), Some(10_000)),
+    );
+    let grant_settle_payer = grant_payer.clone();
+    let grant_settle_provider = grant_provider.clone();
+
+    let mut ledger = aether_core::escrow::fee::BalanceLedger::new();
+    ledger.fund_agent(&payer.identity.derived_agent_id(), 100_000);
+
+    let pair = EscrowPair {
+        registry,
+        caps,
+        escrows: aether_core::escrow::store::EscrowStore::new(),
+        ledger,
+        payer,
+        provider,
+        grant_payer,
+        grant_provider,
+    };
+
+    let mut settlements = aether_core::settlement::SettlementStore::new();
+    let now = 50u64;
+    let payer_id = pair.payer.identity.derived_agent_id();
+    let provider_id = pair.provider.identity.derived_agent_id();
+
+    let payer_acct = new_account_binding(
+        &payer_id,
+        PROVIDER_ENTERPRISE_LEDGER_V0,
+        "acct-payer-001",
+        "AETHER_TEST",
+        now,
+        10_000,
+    )
+    .expect("payer acct");
+    let signed_payer =
+        sign_account_binding(&payer_acct, &pair.payer.signing_key, &payer_id).expect("sign");
+    let payer_account = bind_account(
+        &mut settlements,
+        &pair.registry,
+        &pair.caps,
+        &signed_payer,
+        Some(&grant_settle_payer),
+        now,
+    )
+    .expect("bind payer");
+
+    let provider_acct = new_account_binding(
+        &provider_id,
+        PROVIDER_ENTERPRISE_LEDGER_V0,
+        "acct-provider-001",
+        "AETHER_TEST",
+        now,
+        10_000,
+    )
+    .expect("provider acct");
+    let signed_provider =
+        sign_account_binding(&provider_acct, &pair.provider.signing_key, &provider_id)
+            .expect("sign");
+    let provider_account = bind_account(
+        &mut settlements,
+        &pair.registry,
+        &pair.caps,
+        &signed_provider,
+        Some(&grant_settle_provider),
+        now,
+    )
+    .expect("bind provider");
+
+    SettlementHarness {
+        pair,
+        settlements,
+        adapter: aether_core::settlement::MockSettlementAdapterV0::new(),
+        grant_settle_payer,
+        grant_settle_provider,
+        payer_account,
+        provider_account,
+    }
+}
+
+pub fn request_release_settlement(
+    h: &mut SettlementHarness,
+    escrow_id: [u8; 32],
+    now: u64,
+) -> aether_core::settlement::SettlementBindingV0 {
+    use aether_core::settlement::{intent_from_escrow, request_settlement, EconomicOutcome};
+
+    let intent = intent_from_escrow(
+        &h.pair.escrows,
+        &escrow_id,
+        EconomicOutcome::ReleaseToProvider,
+        aether_core::settlement::PROVIDER_ENTERPRISE_LEDGER_V0,
+        h.payer_account.binding_id,
+        Some(h.provider_account.binding_id),
+    )
+    .expect("intent");
+    let payer_id = h.pair.payer.identity.derived_agent_id();
+    request_settlement(
+        &mut h.settlements,
+        &h.pair.escrows,
+        &h.pair.registry,
+        &h.pair.caps,
+        &intent,
+        &payer_id,
+        &h.pair.payer.signing_key,
+        Some(&h.grant_settle_payer),
+        now,
+    )
+    .expect("request")
+}
+
+pub fn full_finalize_release(
+    h: &mut SettlementHarness,
+    escrow_id: [u8; 32],
+    now: u64,
+) -> aether_core::settlement::SettlementBindingV0 {
+    use aether_core::settlement::{
+        advance_mock_status, finalize_settlement, query_settlement, submit_settlement,
+        SettlementStatus,
+    };
+
+    let binding = request_release_settlement(h, escrow_id, now);
+    let payer_id = h.pair.payer.identity.derived_agent_id();
+    let submitted = submit_settlement(
+        &mut h.settlements,
+        &h.pair.escrows,
+        &h.pair.registry,
+        &h.pair.caps,
+        &mut h.adapter,
+        &binding.binding_id,
+        &payer_id,
+        Some(&h.grant_settle_payer),
+        now + 1,
+    )
+    .expect("submit");
+
+    advance_mock_status(&mut h.adapter, &submitted, SettlementStatus::Accepted).expect("accept");
+    let (accepted, _) = query_settlement(
+        &mut h.settlements,
+        &mut h.pair.escrows,
+        &h.pair.registry,
+        &h.pair.caps,
+        &mut h.adapter,
+        &submitted.binding_id,
+        &payer_id,
+        Some(&h.grant_settle_payer),
+        now + 2,
+    )
+    .expect("query accept");
+
+    advance_mock_status(&mut h.adapter, &accepted, SettlementStatus::Confirmed).expect("confirm");
+    let (confirmed, report) = query_settlement(
+        &mut h.settlements,
+        &mut h.pair.escrows,
+        &h.pair.registry,
+        &h.pair.caps,
+        &mut h.adapter,
+        &accepted.binding_id,
+        &payer_id,
+        Some(&h.grant_settle_payer),
+        now + 3,
+    )
+    .expect("query confirm");
+
+    finalize_settlement(
+        &mut h.settlements,
+        &mut h.pair.escrows,
+        &h.pair.registry,
+        &h.pair.caps,
+        &h.adapter,
+        &confirmed.binding_id,
+        &payer_id,
+        Some(&h.grant_settle_payer),
+        &report,
+        now + 4,
+    )
+    .expect("finalize")
+}
+
+// --- PROTO-NET-0 helpers ---
+
+pub struct NetworkPair {
+    pub registry: IdentityRegistry,
+    pub directory: aether_core::network::AgentDirectoryV0,
+    pub store_a: aether_core::network::SessionStore,
+    pub store_b: aether_core::network::SessionStore,
+    pub a: IdentityBundle,
+    pub b: IdentityBundle,
+}
+
+pub fn setup_network_pair() -> NetworkPair {
+    setup_network_pair_seeded(42)
+}
+
+pub fn setup_network_pair_seeded(seed: u64) -> NetworkPair {
+    let mut registry = IdentityRegistry::new();
+    let a = register_agent_seeded(&mut registry, vec!["net.session".into()], None, seed);
+    let b = register_agent_seeded(
+        &mut registry,
+        vec!["net.session".into()],
+        None,
+        seed.wrapping_add(1),
+    );
+    let mut directory = aether_core::network::AgentDirectoryV0::new();
+    let a_id = a.identity.derived_agent_id();
+    let b_id = b.identity.derived_agent_id();
+    directory
+        .register(&registry, &a_id, "sim://agent-a", 1)
+        .expect("register a");
+    directory
+        .register(&registry, &b_id, "sim://agent-b", 1)
+        .expect("register b");
+    NetworkPair {
+        registry,
+        directory,
+        store_a: aether_core::network::SessionStore::new(),
+        store_b: aether_core::network::SessionStore::new(),
+        a,
+        b,
+    }
+}
+
+/// Full hello handshake: A initiates, B accepts, A completes. Returns matching session ids.
+pub fn establish_session(
+    pair: &mut NetworkPair,
+    nonce_a: u64,
+    nonce_b: u64,
+    now: u64,
+    ttl: u64,
+) -> ([u8; 32], [u8; 32]) {
+    use aether_core::network::{
+        accept_hello, complete_hello, create_hello, initiate_hello, sign_hello, MSG_NET_HELLO,
+        MSG_NET_HELLO_ACCEPT,
+    };
+
+    let a_id = pair.a.identity.derived_agent_id();
+    let b_id = pair.b.identity.derived_agent_id();
+
+    let hello_a = create_hello(&a_id, now, nonce_a, None);
+    let signed_hello =
+        sign_hello(&hello_a, &pair.a.signing_key, MSG_NET_HELLO).expect("sign hello");
+    initiate_hello(
+        &mut pair.store_a,
+        &pair.registry,
+        &a_id,
+        &b_id,
+        &signed_hello,
+        now,
+        ttl,
+    )
+    .expect("initiate");
+
+    let accept_b = create_hello(&b_id, now + 1, nonce_b, None);
+    let signed_accept =
+        sign_hello(&accept_b, &pair.b.signing_key, MSG_NET_HELLO_ACCEPT).expect("sign accept");
+    let sess_b = accept_hello(
+        &mut pair.store_b,
+        &pair.registry,
+        &b_id,
+        &signed_hello,
+        &signed_accept,
+        now + 1,
+        ttl,
+    )
+    .expect("accept");
+
+    let sess_a = complete_hello(
+        &mut pair.store_a,
+        &pair.registry,
+        &a_id,
+        &b_id,
+        nonce_a,
+        &signed_accept,
+        now + 2,
+    )
+    .expect("complete");
+
+    assert_eq!(sess_a.session_id, sess_b.session_id);
+    (sess_a.session_id, sess_b.session_id)
 }

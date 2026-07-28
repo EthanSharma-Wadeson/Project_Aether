@@ -1,7 +1,8 @@
-//! Aether v0 reference implementation — PROTO-0 + PROTO-1 + PROTO-2.
+//! Aether v0 reference implementation — PROTO-0 + PROTO-1 + PROTO-2 + PROTO-NET-0 + PROTO-4.
 //!
 //! Local deterministic identity, capability enforcement, bilateral channel simulation,
-//! and escrow/receipt settlement simulation. No networking or live settlement.
+//! escrow/receipt settlement simulation, authenticated transport simulation, and
+//! settlement-binding to a mock external ledger. No live networking or payment rails.
 
 pub mod capability;
 pub mod cbor;
@@ -10,7 +11,9 @@ pub mod crypto;
 pub mod error;
 pub mod escrow;
 pub mod identity;
+pub mod network;
 pub mod permission;
+pub mod settlement;
 pub mod types;
 pub mod verifier;
 
