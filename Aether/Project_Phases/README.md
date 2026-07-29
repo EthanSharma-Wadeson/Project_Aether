@@ -20,10 +20,14 @@ Do not use `P0`–`P5` for prototypes — they collide with phase numbers.
 | **2** | Active | [phase_2/README.md](phase_2/README.md) — Mainframe architecture (design gate) |
 | 3 | Pending | [Aether_docs/roadmap/phase_3.md](../Aether_docs/roadmap/phase_3.md) |
 
-**Current focus:** Phase 2 — PROTO-4 design complete, acceptance tests **frozen**; implementation not started.
+**Current focus:** Phase 2 — PROTO-4 implemented; PROTO-3 reputation **implemented** (34 tests pass).
 
 | Resource | Role |
 |----------|------|
+| [phase_2/PROTO_3_ACCEPTANCE_TESTS.md](phase_2/PROTO_3_ACCEPTANCE_TESTS.md) | Frozen PROTO-3 acceptance tests |
+| [phase_2/PROTO_3_DESIGN.md](phase_2/PROTO_3_DESIGN.md) | Evidence-based reputation design |
+| [phase_2/PROTO_3_DECISIONS.md](phase_2/PROTO_3_DECISIONS.md) | PROTO-3 decisions (P3-DEC-###) |
+| [phase_2/PROTO_3_SECURITY_REVIEW.md](phase_2/PROTO_3_SECURITY_REVIEW.md) | PROTO-3 security review (APPROVE) |
 | [phase_2/PROTO_4_ACCEPTANCE_TESTS.md](phase_2/PROTO_4_ACCEPTANCE_TESTS.md) | Frozen PROTO-4 acceptance tests |
 | [phase_2/PROTO_4_DESIGN.md](phase_2/PROTO_4_DESIGN.md) | Settlement binding design |
 | [phase_2/PROTO_4_DECISIONS.md](phase_2/PROTO_4_DECISIONS.md) | PROTO-4 decisions |

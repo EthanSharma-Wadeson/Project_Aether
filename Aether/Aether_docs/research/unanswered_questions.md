@@ -105,7 +105,7 @@ These items are open for mainframe design review. See [Project_Phases/phase_2/](
 - [ ] Minimum and maximum allowed dispute periods
 - [ ] Evidence retention duration and availability audit mechanism
 - [ ] Backend-specific finality representation in protocol schema
-- [ ] Cross-backend settlement effects on reputation
+- [ ] Cross-backend settlement effects on reputation → **Per-asset metrics; settlement credit requires hard finality (P3-DEC-008).** See [PROTO_3_DESIGN.md](../../Project_Phases/phase_2/PROTO_3_DESIGN.md).
 - [ ] Measurable conditions that would justify a native Aether chain
 
 ## Identity & Capabilities
@@ -125,9 +125,10 @@ These items are open for mainframe design review. See [Project_Phases/phase_2/](
 
 ## Reputation
 
-- [ ] Which score aggregates are consensus-canonical vs. indexer-derived?
-- [ ] Default decay and anti-wash parameters?
-- [ ] Threshold proofs for reputation without full graph disclosure?
+- [x] Which score aggregates are consensus-canonical vs. indexer-derived? → **Indexer-derived only for PROTO-3 v0; consensus deferred (P3-DEC-014).** See [PROTO_3_DECISIONS.md](../../Project_Phases/phase_2/PROTO_3_DECISIONS.md).
+- [ ] Default decay and anti-wash parameters? → **OPEN** — no decay in v0 reference policy; wash dampening provisional (P3-DEC-009). See [PROTO_3_RESEARCH.md](../../Project_Phases/phase_2/PROTO_3_RESEARCH.md).
+- [ ] Threshold proofs for reputation without full graph disclosure? → **Deferred to PROTO-5.** See [PROTO_3_RESEARCH.md](../../Project_Phases/phase_2/PROTO_3_RESEARCH.md) §9.
+- [x] Reputation model for PROTO-3? → **Locked design:** indexer-derived `ReputationEventV0` from protocol evidence; metrics not mandatory scores. See [PROTO_3_DESIGN.md](../../Project_Phases/phase_2/PROTO_3_DESIGN.md).
 
 ## Verification & Privacy
 
@@ -166,6 +167,7 @@ These items are open for mainframe design review. See [Project_Phases/phase_2/](
 | 2026-07-28 | Phase 2 begins? | Mainframe architecture gate; design only, no implementation | Project_Phases/phase_2/ |
 | 2026-07-28 | Discovery layer boundary? | Provisional: `AgentDirectoryV0` is protocol; marketplace is app | DEC-P2-010 |
 | 2026-07-28 | Reputation model for PROTO-3? | Provisional: indexer-derived from signed events with evidence refs | DEC-P2-004 |
+| 2026-07-29 | PROTO-3 reputation architecture? | **Locked design:** read-only indexer; `ReputationEventV0` derived from PROTO-1/2/4 evidence; metrics vector (no mandatory score); enterprise opt-out | PROTO_3_DESIGN.md, P3-DEC-001–012 |
 
 ## Links
 

@@ -4,7 +4,7 @@
 
 Define assets to protect, adversaries, trust assumptions, and mitigations across identity, payments, reputation, privacy, and consensus.
 
-**Status:** Draft — updated after PROTO-0, PROTO-1, PROTO-2, PROTO-NET-0, and PROTO-4 (2026-07-28)
+**Status:** Draft — updated after PROTO-0, PROTO-1, PROTO-2, PROTO-NET-0, PROTO-4, and PROTO-3 security review (2026-07-29)
 
 Evidence references:
 
@@ -13,6 +13,7 @@ Evidence references:
 - [PROTO_1_RESULTS.md](../Project_Phases/phase_1/PROTO_1_RESULTS.md)
 - [PROTO_NET_0_RESULTS.md](../Project_Phases/phase_2/PROTO_NET_0_RESULTS.md)
 - [PROTO_NET_0_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_NET_0_SECURITY_REVIEW.md)
+- [PROTO_3_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_3_SECURITY_REVIEW.md)
 
 A passing prototype suite is evidence for specific claims only. It is **not** a global proof that Aether is secure.
 
@@ -230,7 +231,7 @@ The following remain **unvalidated** and must not be treated as evidenced:
 - settlement finality and on-chain enforcement
 - distributed revocation propagation
 - watchtowers, offline safety, and slash economics
-- reputation systems and anti-wash scoring
+- reputation systems and anti-wash scoring (PROTO-3 **implemented** — 34 tests pass — anti-wash heuristics remain OPEN)
 - key rotation hierarchy (root / recovery / operational / channel keys)
 - privacy selective-disclosure flows
 - multi-party authority and production Merkle permission structures
@@ -341,7 +342,24 @@ Capability checks MUST occur before an externally visible economic action is aut
 - Cost to reset identity trust  
 - Careful handling of ambiguous faults  
 
-**Status:** not validated by PROTO-0.
+**Status:** PROTO-3 implemented — 34 acceptance tests pass (2026-07-29). Security review **APPROVE WITH DOCUMENTED LIMITATIONS**.
+
+Implemented: `ReputationEventV0`, `EvidenceRefV0`, `AgentMetricsV0`, `ReputationStore` (append-only + materialised cache), `ReputationIndexer` (read-only derivation from PROTO-2/4 artifacts), `ReputationQueryV0/ResultV0`, enterprise `LocalOnly` mode.
+
+Validated by implementation:
+- Authority boundary preserved — indexer has no write path to identity, capability, escrow, or settlement stores
+- Evidence-first derivation — every event cites verifiable `EvidenceRefV0` with SHA-256 commitments
+- Deterministic recomputation — `full_recompute()` matches materialised cache (P3-R002)
+- Idempotent ingestion — duplicate events rejected by `event_id` (P3-T015)
+- Settlement credit requires hard finality (P3-DEC-008)
+- Enterprise local-only mode blocks public queries (P3-E01)
+- Revoked identity stops positive accrual (P3-T010)
+
+P3-SEC-001 resolved: `capability.denied` excluded from v0 event set (no signed evidence source).
+P3-SEC-002 documented: `event_log_root` proves consistency, not completeness — `CompletenessQualification::SelfAttested` exposed.
+P3-SEC-003 documented: commitment-only mode protects payload content, not relationship graph.
+
+**OPEN:** Sybil resistance (no bonds), indexer honesty enforcement, collusion with real economic work, counterparty graph privacy, work quality verification. See [PROTO_3_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_3_SECURITY_REVIEW.md).
 
 ## Verification Security
 

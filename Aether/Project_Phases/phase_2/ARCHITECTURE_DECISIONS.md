@@ -24,7 +24,7 @@ Status meanings:
 | DEC-P2-001 | Agent discovery mechanism | Open | Low |
 | DEC-P2-002 | Network trust model | Open | Low |
 | DEC-P2-003 | Settlement philosophy | Open | Medium |
-| DEC-P2-004 | Reputation architecture | Provisional | Medium |
+| DEC-P2-004 | Reputation architecture | **Locked (PROTO-3 design)** | Medium-High |
 | DEC-P2-005 | Permission scaling model | Provisional | Medium |
 | DEC-P2-006 | First networked prototype | Open | Low |
 | DEC-P2-007 | Default network topology | Open | Low |
