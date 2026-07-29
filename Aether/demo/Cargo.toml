@@ -1,0 +1,15 @@
+[package]
+name = "aether-enterprise-demo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Enterprise Agent Spend Control — end-to-end Aether protocol demonstrator"
+
+[[bin]]
+name = "enterprise-demo"
+path = "src/main.rs"
+
+[dependencies]
+aether-core = { path = "../core" }
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand = "0.8"

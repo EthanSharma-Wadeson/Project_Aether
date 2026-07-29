@@ -1,6 +1,6 @@
 # Phase 2 — Mainframe Architecture & Protocol Expansion
 
-**Status:** Active — PROTO-4 remediated (P4-SEC-001/002); awaiting fresh security approval
+**Status:** Active — PROTO-4 security **APPROVE WITH DOCUMENTED LIMITATIONS** (post-remediation)
 
 Phase 1 (PROTO-0, PROTO-1, PROTO-2) is complete. Phase 2 defines the protocol operating system and settlement binding for the Enterprise Spend Control wedge.
 
@@ -20,7 +20,9 @@ Phase 1 (PROTO-0, PROTO-1, PROTO-2) is complete. Phase 2 defines the protocol op
 | [PROTO_4_DECISIONS.md](PROTO_4_DECISIONS.md) | PROTO-4 design decisions |
 | [PROTO_4_ACCEPTANCE_TESTS.md](PROTO_4_ACCEPTANCE_TESTS.md) | Frozen PROTO-4 acceptance tests |
 | [PROTO_4_RESULTS.md](PROTO_4_RESULTS.md) | PROTO-4 implementation + remediation results |
-| [PROTO_4_SECURITY_REVIEW.md](PROTO_4_SECURITY_REVIEW.md) | Initial review (REMEDIATION REQUIRED); findings addressed in code |
+| [PROTO_4_SECURITY_REVIEW.md](PROTO_4_SECURITY_REVIEW.md) | Post-remediation review — **APPROVE WITH DOCUMENTED LIMITATIONS** |
+| [ENTERPRISE_DEMO.md](ENTERPRISE_DEMO.md) | Enterprise Spend Control demonstrator — purpose, architecture, scenarios |
+| [ENTERPRISE_DEMO_RESULTS.md](ENTERPRISE_DEMO_RESULTS.md) | Demonstrator run results (4/4 scenarios) |
 
 ## Key Question
 
@@ -36,11 +38,17 @@ Phase 1 (PROTO-0, PROTO-1, PROTO-2) is complete. Phase 2 defines the protocol op
 | PROTO-4 design | Complete |
 | PROTO-4 acceptance tests | Frozen |
 | PROTO-4 implementation | Complete |
-| PROTO-4 security review | REMEDIATION REQUIRED (historical) |
-| **P4-SEC-001 / P4-SEC-002 remediation** | **Complete (P4-SEC-R01–R03)** |
-| Fresh PROTO-4 security approval | **Pending** |
+| P4-SEC-001 / P4-SEC-002 remediation | Complete (P4-SEC-R01–R03) |
+| **PROTO-4 security review (post-remediation)** | **APPROVE WITH DOCUMENTED LIMITATIONS** |
+| Enterprise Spend Control demonstrator | Complete (`Aether/demo/`, 4/4 scenarios) |
 
-**STOP:** Await fresh PROTO-4 security approval. No second settlement backend, reputation, marketplace, open agent economy, or production integrations until APPROVE.
+**STOP:** Await explicit acceptance of the enterprise spend-control wedge. No reputation, marketplace, second settlement backend, or production integrations until authorised.
+
+Run the demonstrator:
+
+```bash
+cd Aether/demo && cargo run
+```
 
 ## Constraints
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Design complete + acceptance tests frozen — implementation + P4-SEC remediation complete; awaiting fresh security approval**
+**Design complete + acceptance tests frozen — implementation + remediation complete; security: APPROVE WITH DOCUMENTED LIMITATIONS**
 
 Wedge: [PHASE_2_WEDGE_DECISION.md](PHASE_2_WEDGE_DECISION.md) — **Enterprise Agent Spend Control**.
 

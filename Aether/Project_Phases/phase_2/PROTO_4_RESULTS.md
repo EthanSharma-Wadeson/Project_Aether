@@ -2,7 +2,7 @@
 
 ## Status
 
-**PROTO-4 implementation + P4-SEC-001/002 remediation complete — awaiting fresh security approval**
+**PROTO-4 implementation + remediation complete — security: APPROVE WITH DOCUMENTED LIMITATIONS**
 
 Command:
 
@@ -12,7 +12,7 @@ cd Aether/core && cargo fmt --check && cargo test && cargo clippy --all-targets 
 
 Date: 2026-07-28
 
-**STOP.** Do not begin a second settlement backend, reputation, marketplace, networked economic flows, or production payment integrations until PROTO-4 receives a **fresh** security approval after this remediation.
+**STOP.** Await explicit acceptance of the post-remediation security verdict before second settlement backend, reputation, marketplace, networked economic flows, or production payment integrations.
 
 ---
 
@@ -150,6 +150,6 @@ Caller-supplied report status is **not** overwritten; it must already be `Confir
 6. No live bank/chain/token/marketplace code — **yes**
 7. `PROTO_4_RESULTS.md` written — **yes**
 8. P4-SEC-001 / P4-SEC-002 remediated + regressions — **yes**
-9. Fresh security approval after remediation — **pending**
+9. Fresh security approval after remediation — **APPROVE WITH DOCUMENTED LIMITATIONS** (see PROTO_4_SECURITY_REVIEW.md)
 
-**Next step:** Fresh PROTO-4 security review. Do not expand scope until APPROVE.
+**Next step:** Explicit acceptance of the security verdict before expanding Phase 2 scope.

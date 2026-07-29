@@ -178,7 +178,7 @@ PROTO-NET-0 **does not** evidence: real network security, encrypted transport, d
 
 ## Validated by PROTO-4 (local settlement binding)
 
-The following settlement-binding properties were exercised by the PROTO-4 local deterministic prototype and adversarial suite (see [PROTO_4_RESULTS.md](../Project_Phases/phase_2/PROTO_4_RESULTS.md), [PROTO_4_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_4_SECURITY_REVIEW.md)):
+The following settlement-binding properties were exercised by the PROTO-4 local deterministic prototype and adversarial suite (see [PROTO_4_RESULTS.md](../Project_Phases/phase_2/PROTO_4_RESULTS.md), [PROTO_4_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_4_SECURITY_REVIEW.md) — post-remediation **APPROVE WITH DOCUMENTED LIMITATIONS**):
 
 | Area | Evidenced behaviour |
 |------|---------------------|
