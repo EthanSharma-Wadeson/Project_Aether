@@ -49,6 +49,8 @@ impl RunState {
             failure_protocol: Some(proto),
             failure_detail: Some(format!("{err:?}")),
             summary,
+            escrow_id: self.escrow_id,
+            settlement_binding_id: self.binding.as_ref().map(|b| b.binding_id),
         }
     }
 
@@ -68,6 +70,8 @@ impl RunState {
             failure_protocol: None,
             failure_detail: None,
             summary,
+            escrow_id: self.escrow_id,
+            settlement_binding_id: self.binding.as_ref().map(|b| b.binding_id),
         }
     }
 }
@@ -346,11 +350,12 @@ fn confirm_and_finalize(
     Ok((finalized, Some(report)))
 }
 
-/// Run a single demonstration scenario.
-pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome {
-    crate::enterprise_demo::reporting::render_scenario_header(kind);
-
-    let mut world = crate::enterprise_demo::harness::setup_world(config);
+/// Run a single demonstration scenario against an existing world.
+pub fn run_scenario_on_world(
+    kind: ScenarioKind,
+    config: &DemoConfig,
+    world: &mut EnterpriseWorld,
+) -> ScenarioOutcome {
     let mut state = RunState {
         stages: Vec::new(),
         escrow_id: None,
@@ -365,9 +370,9 @@ pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome 
 
     let now = 50u64;
 
-    let (terms, escrow_id) = match create_and_fund_escrow(&mut world, config, now) {
+    let (terms, escrow_id) = match create_and_fund_escrow(world, config, now) {
         Ok(v) => v,
-        Err((stage, e)) => return state.fail(kind, stage, e, &world, config),
+        Err((stage, e)) => return state.fail(kind, stage, e, world, config),
     };
     state.escrow_id = Some(escrow_id);
     state.terms = Some(terms.clone());
@@ -376,65 +381,65 @@ pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome 
 
     match kind {
         ScenarioKind::ReceiptReplay => {
-            if let Err(e) = submit_receipt_once(&mut world, &terms, escrow_id, 1, now + 10) {
-                return state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config);
+            if let Err(e) = submit_receipt_once(world, &terms, escrow_id, 1, now + 10) {
+                return state.fail(kind, DemoStage::ReceiptAccepted, e, world, config);
             }
             state.push(DemoStage::ReceiptAccepted);
             // Replay: resubmit identical signed receipt after escrow left Funded state.
-            match submit_receipt_once(&mut world, &terms, escrow_id, 1, now + 11) {
+            match submit_receipt_once(world, &terms, escrow_id, 1, now + 11) {
                 Ok(_) => state.fail(
                     kind,
                     DemoStage::ReceiptAccepted,
                     Error::InvalidReceipt,
-                    &world,
+                    world,
                     config,
                 ),
                 Err(e) if matches!(e, Error::ReceiptReplay | Error::InvalidEscrowStatus) => {
-                    state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config)
+                    state.fail(kind, DemoStage::ReceiptAccepted, e, world, config)
                 }
-                Err(e) => state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config),
+                Err(e) => state.fail(kind, DemoStage::ReceiptAccepted, e, world, config),
             }
         }
 
         ScenarioKind::SpendPolicyExceeded => {
-            if let Err(e) = submit_receipt_once(&mut world, &terms, escrow_id, 1, now + 10) {
-                return state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config);
+            if let Err(e) = submit_receipt_once(world, &terms, escrow_id, 1, now + 10) {
+                return state.fail(kind, DemoStage::ReceiptAccepted, e, world, config);
             }
             state.push(DemoStage::ReceiptAccepted);
-            if let Err(e) = release_escrow_terminal(&mut world, escrow_id, now + 120) {
-                return state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config);
+            if let Err(e) = release_escrow_terminal(world, escrow_id, now + 120) {
+                return state.fail(kind, DemoStage::ReceiptAccepted, e, world, config);
             }
             // Agent max_spend is below principal in this scenario config
-            match request_settle(&mut world, escrow_id, now + 130, true) {
+            match request_settle(world, escrow_id, now + 130, true) {
                 Ok(_) => state.fail(
                     kind,
                     DemoStage::SettlementRequested,
                     Error::CapabilityDenied,
-                    &world,
+                    world,
                     config,
                 ),
-                Err(e) => state.fail(kind, DemoStage::SettlementRequested, e, &world, config),
+                Err(e) => state.fail(kind, DemoStage::SettlementRequested, e, world, config),
             }
         }
 
         ScenarioKind::AdapterReversal | ScenarioKind::HappyPath => {
-            if let Err(e) = submit_receipt_once(&mut world, &terms, escrow_id, 1, now + 10) {
-                return state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config);
+            if let Err(e) = submit_receipt_once(world, &terms, escrow_id, 1, now + 10) {
+                return state.fail(kind, DemoStage::ReceiptAccepted, e, world, config);
             }
             state.push(DemoStage::ReceiptAccepted);
-            if let Err(e) = release_escrow_terminal(&mut world, escrow_id, now + 120) {
-                return state.fail(kind, DemoStage::ReceiptAccepted, e, &world, config);
+            if let Err(e) = release_escrow_terminal(world, escrow_id, now + 120) {
+                return state.fail(kind, DemoStage::ReceiptAccepted, e, world, config);
             }
 
-            let binding = match request_settle(&mut world, escrow_id, now + 130, false) {
+            let binding = match request_settle(world, escrow_id, now + 130, false) {
                 Ok(b) => b,
-                Err(e) => return state.fail(kind, DemoStage::SettlementRequested, e, &world, config),
+                Err(e) => return state.fail(kind, DemoStage::SettlementRequested, e, world, config),
             };
             state.binding = Some(binding.clone());
             state.push(DemoStage::SettlementRequested);
 
             let (confirmed, report) = match confirm_and_finalize(
-                &mut world,
+                world,
                 &binding,
                 now + 140,
                 kind == ScenarioKind::HappyPath,
@@ -446,7 +451,7 @@ pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome 
                     } else {
                         DemoStage::AdapterConfirmed
                     };
-                    return state.fail(kind, stage, e, &world, config);
+                    return state.fail(kind, stage, e, world, config);
                 }
             };
             state.binding = Some(confirmed.clone());
@@ -478,7 +483,7 @@ pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome 
                             kind,
                             DemoStage::HardSettlementVerified,
                             Error::InvalidSettlementEvidence,
-                            &world,
+                            world,
                             config,
                         );
                     }
@@ -493,18 +498,51 @@ pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome 
                                 kind,
                                 DemoStage::HardSettlementVerified,
                                 Error::InvalidSettlementEvidence,
-                                &world,
+                                world,
                                 config,
                             );
                         }
-                        return state.fail(kind, DemoStage::HardSettlementVerified, e, &world, config);
+                        return state.fail(kind, DemoStage::HardSettlementVerified, e, world, config);
                     }
                 }
             }
 
             state.push(DemoStage::HardSettlementVerified);
-            state.succeed(kind, &world, config)
+            state.succeed(kind, world, config)
         }
+    }
+}
+
+/// Run a single demonstration scenario.
+pub fn run_scenario(kind: ScenarioKind, config: &DemoConfig) -> ScenarioOutcome {
+    crate::enterprise_demo::reporting::render_scenario_header(kind);
+    let mut world = crate::enterprise_demo::harness::setup_world(config);
+    run_scenario_on_world(kind, config, &mut world)
+}
+
+/// Bootstrap data for Control Plane observatory (happy path only).
+pub struct ObservatoryBootstrap {
+    pub world: EnterpriseWorld,
+    pub escrow_id: Option<[u8; 32]>,
+    pub settlement_binding_id: Option<[u8; 32]>,
+}
+
+/// Bootstrap world for Control Plane observatory (happy path only).
+pub fn build_observatory_bootstrap() -> ObservatoryBootstrap {
+    let kind = ScenarioKind::HappyPath;
+    let config = config_for(kind);
+    let mut world = crate::enterprise_demo::harness::setup_world(&config);
+    let outcome = run_scenario_on_world(kind, &config, &mut world);
+    if !outcome.success {
+        panic!(
+            "observatory bootstrap failed: {:?}",
+            outcome.failure_detail
+        );
+    }
+    ObservatoryBootstrap {
+        world,
+        escrow_id: outcome.escrow_id,
+        settlement_binding_id: outcome.settlement_binding_id,
     }
 }
 

@@ -5,6 +5,10 @@ edition = "2021"
 publish = false
 description = "Enterprise Agent Spend Control — end-to-end Aether protocol demonstrator"
 
+[lib]
+name = "aether_enterprise_demo"
+path = "src/lib.rs"
+
 [[bin]]
 name = "enterprise-demo"
 path = "src/main.rs"

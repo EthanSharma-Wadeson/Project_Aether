@@ -4,7 +4,7 @@
 
 Define assets to protect, adversaries, trust assumptions, and mitigations across identity, payments, reputation, privacy, and consensus.
 
-**Status:** Draft — updated after PROTO-0, PROTO-1, PROTO-2, PROTO-NET-0, PROTO-4, and PROTO-3 security review (2026-07-29)
+**Status:** Draft — updated after PROTO-0 through PROTO-3 security review and Control Plane Milestone 1 (2026-07-29)
 
 Evidence references:
 
@@ -14,6 +14,7 @@ Evidence references:
 - [PROTO_NET_0_RESULTS.md](../Project_Phases/phase_2/PROTO_NET_0_RESULTS.md)
 - [PROTO_NET_0_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_NET_0_SECURITY_REVIEW.md)
 - [PROTO_3_SECURITY_REVIEW.md](../Project_Phases/phase_2/PROTO_3_SECURITY_REVIEW.md)
+- [CONTROL_PLANE_MILESTONE_1_RESULTS.md](../Project_Phases/phase_3/CONTROL_PLANE_MILESTONE_1_RESULTS.md)
 
 A passing prototype suite is evidence for specific claims only. It is **not** a global proof that Aether is secure.
 
@@ -406,6 +407,34 @@ P3-SEC-003 documented: commitment-only mode protects payload content, not relati
 - When is **historical authority validation** (non-current root) allowed, and how is it bounded?
 - When does **operational-key rotation / key hierarchy** become mandatory versus optional for v0→v1?
 - How should subject-binding evolve for delegated presentation in payment flows?
+
+---
+
+## Control Plane (Milestone 1 — Read-Only Observatory)
+
+**Status:** Application layer implemented; Milestone 1 security remediation complete (2026-07-29). Awaiting security review approval before Milestone 2.
+
+Evidence: [CONTROL_PLANE_MILESTONE_1_RESULTS.md](../Project_Phases/phase_3/CONTROL_PLANE_MILESTONE_1_RESULTS.md), [CONTROL_PLANE_SECURITY_MODEL.md](../Project_Phases/phase_3/CONTROL_PLANE_SECURITY_MODEL.md)
+
+| Area | Evidenced behaviour |
+|------|---------------------|
+| Authority boundary | No PROTO-0 write routes; no escrow/settlement/reputation mutation paths |
+| Authentication | JWT access tokens (`iss`/`aud`/`typ`), bcrypt passwords, HttpOnly refresh cookies |
+| Login abuse protection | Progressive backoff by IP + username; generic `invalid credentials` errors |
+| Refresh lifecycle | Rotation on every refresh; reuse detection revokes all operator sessions |
+| Browser headers | CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy |
+| Read isolation | Protocol adapters expose getters only; dashboard matches protocol store state |
+| Audit logging | Login, refresh, logout, and observation actions recorded append-only |
+| Regression | 311 protocol tests unchanged; 18 Control Plane integration tests pass |
+
+**Remaining before Milestone 2:**
+
+- CSRF protection (required for write routes)
+- MFA / per-operator PROTO-0 key delegation
+- TLS for non-localhost deployment
+- DB file permissions hardening (deployment checklist)
+
+A compromised Control Plane remains an **application-layer** incident. Protocol cryptographic guarantees (capability chain, escrow validity, settlement proofs, reputation event_id binding) are enforced by `aether-core`, not by the dashboard.
 
 ---
 

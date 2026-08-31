@@ -6,6 +6,16 @@
 **/target/
 **/*.rs.bk
 
+# Node / frontend
+**/node_modules/
+**/frontend/dist/
+
+# Local SQLite (lab/dev)
+**/*.db
+**/*.db-journal
+**/*.db-wal
+**/*.db-shm
+
 # Editor / IDE
 .idea/
 .vscode/

@@ -17,10 +17,27 @@ Do not use `P0`–`P5` for prototypes — they collide with phase numbers.
 |-------|--------|---------|
 | **0** | Closed | [phase_0/CONTEXT.md](phase_0/CONTEXT.md) — Pre-implementation readiness |
 | **1** | Closed | [phase_1/README.md](phase_1/README.md) — PROTO-0/1/2 primitives |
-| **2** | Active | [phase_2/README.md](phase_2/README.md) — Mainframe architecture (design gate) |
-| 3 | Pending | [Aether_docs/roadmap/phase_3.md](../Aether_docs/roadmap/phase_3.md) |
+| **2** | Complete | [phase_2/README.md](phase_2/README.md) — Mainframe architecture + protocol implementation |
+| **3** | Complete (Control Plane + Governance Console) | [phase_3/README.md](phase_3/README.md) — Control Plane; Apply disabled |
+| **15** | **Design frozen** | Agent Treasury & Financial Architecture — [design pack](../Aether_docs/TREASURY_ARCHITECTURE.md) |
+| **16** | **Review complete** | [TREASURY_ARCHITECTURE_REVIEW.md](../Aether_docs/TREASURY_ARCHITECTURE_REVIEW.md) — **PASS WITH CONDITIONS** |
+| **17** | **Foundation implemented** | [`treasury/`](../treasury/) — internal journal/allocations/reservations; **no HTTP/rails/Apply** |
+| **18** | **Design frozen** | [TREASURY_CONTROL_PLANE_ARCHITECTURE.md](../Aether_docs/TREASURY_CONTROL_PLANE_ARCHITECTURE.md) — **PASS WITH CONDITIONS** |
+| **19** | **Read observatory implemented** | [TREASURY_READ_OBSERVATORY_IMPLEMENTATION.md](../Aether_docs/TREASURY_READ_OBSERVATORY_IMPLEMENTATION.md) — CP + Console read-only; **no mutations** |
 
-**Current focus:** Phase 2 — PROTO-4 implemented; PROTO-3 reputation **implemented** (34 tests pass).
+**Current focus:** Phase 19 complete — treasury observation via Control Plane and Console. Do **not** add funding/mutation APIs, custody, ERP, or Apply sync until separately approved. Apply remains disabled; no protocol changes.
+
+| Treasury design pack | Role |
+|----------------------|------|
+| [../Aether_docs/TREASURY_ARCHITECTURE.md](../Aether_docs/TREASURY_ARCHITECTURE.md) | Hierarchy, assets, funding, spending authority |
+| [../Aether_docs/TREASURY_ACCOUNTING_MODEL.md](../Aether_docs/TREASURY_ACCOUNTING_MODEL.md) | Immutable journal + attribution |
+| [../Aether_docs/TREASURY_SECURITY_MODEL.md](../Aether_docs/TREASURY_SECURITY_MODEL.md) | Controls + regulatory extension points |
+| [../Aether_docs/TREASURY_THREAT_MODEL.md](../Aether_docs/TREASURY_THREAT_MODEL.md) | TR-THR catalogue |
+| [../Aether_docs/TREASURY_BUSINESS_CASE.md](../Aether_docs/TREASURY_BUSINESS_CASE.md) | Enterprise spend-control business case |
+| [../Aether_docs/TREASURY_OPEN_QUESTIONS.md](../Aether_docs/TREASURY_OPEN_QUESTIONS.md) | Open questions + Phase 16 resolutions |
+| [../Aether_docs/TREASURY_ARCHITECTURE_REVIEW.md](../Aether_docs/TREASURY_ARCHITECTURE_REVIEW.md) | Phase 16 review + gate decision |
+| [../Aether_docs/TREASURY_CONTROL_PLANE_ARCHITECTURE.md](../Aether_docs/TREASURY_CONTROL_PLANE_ARCHITECTURE.md) | Phase 18 CP ↔ Treasury integration freeze |
+| [../Aether_docs/TREASURY_READ_OBSERVATORY_IMPLEMENTATION.md](../Aether_docs/TREASURY_READ_OBSERVATORY_IMPLEMENTATION.md) | Phase 19 read-only implementation |
 
 | Resource | Role |
 |----------|------|
@@ -43,3 +60,11 @@ Do not use `P0`–`P5` for prototypes — they collide with phase numbers.
 | [experiments/decision/RESULTS.md](../experiments/decision/RESULTS.md) | Experiment evidence |
 | [../schemas/v0/fixtures/manifest.json](../schemas/v0/fixtures/manifest.json) | Published signing fixtures |
 | [../experiments/decision/python_interop/verify_fixtures.py](../experiments/decision/python_interop/verify_fixtures.py) | Independent Python verifier |
+| [phase_3/PHASE_3_CONTEXT.md](phase_3/PHASE_3_CONTEXT.md) | Phase 3 purpose and scope |
+| [phase_3/CONTROL_PLANE_ARCHITECTURE.md](phase_3/CONTROL_PLANE_ARCHITECTURE.md) | Control Plane full architecture |
+| [phase_3/CONTROL_PLANE_THREAT_MODEL.md](phase_3/CONTROL_PLANE_THREAT_MODEL.md) | Control Plane threat classification |
+| [phase_3/CONTROL_PLANE_MILESTONE_1_RESULTS.md](phase_3/CONTROL_PLANE_MILESTONE_1_RESULTS.md) | Milestone 1 implementation results |
+| [phase_3/CONTROL_PLANE_MILESTONE_2_PLAN.md](phase_3/CONTROL_PLANE_MILESTONE_2_PLAN.md) | Milestone 2 Policy Management design gate |
+| [../Aether_docs/CONTROL_PLANE_POLICY_THREAT_MODEL.md](../Aether_docs/CONTROL_PLANE_POLICY_THREAT_MODEL.md) | M2 policy threat model |
+| [../Aether_docs/CONTROL_PLANE_AUTHORITY_MODEL.md](../Aether_docs/CONTROL_PLANE_AUTHORITY_MODEL.md) | Observer vs authorised mutation |
+| [../Aether_docs/CONTROL_PLANE_WRITE_SECURITY.md](../Aether_docs/CONTROL_PLANE_WRITE_SECURITY.md) | CSRF and write API boundary |

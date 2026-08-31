@@ -97,4 +97,6 @@ pub struct ScenarioOutcome {
     pub failure_protocol: Option<&'static str>,
     pub failure_detail: Option<String>,
     pub summary: DemoSummary,
+    pub escrow_id: Option<[u8; 32]>,
+    pub settlement_binding_id: Option<[u8; 32]>,
 }
